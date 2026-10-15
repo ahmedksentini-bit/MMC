@@ -5,12 +5,13 @@ window.MMC = (function () {
   // ---------- formatage ----------
   function fmt(x, d) {
     if (x === undefined || x === null || !isFinite(x)) return '—';
+    if (Math.abs(x) < 1e-9) x = 0;
     if (d === undefined) {
       const a = Math.abs(x);
       d = a === 0 ? 0 : a >= 1000 ? 0 : a >= 100 ? 1 : a >= 10 ? 2 : a >= 1 ? 3 : 4;
     }
     let s = Number(x).toFixed(d);
-    if (Math.abs(x) < 1e-3 && x !== 0 && Math.abs(x) > 0) s = Number(x).toExponential(2);
+    if (Math.abs(x) < 1e-3 && x !== 0) s = Number(x).toPrecision(3);
     return s.replace('.', ',').replace('-', '−');
   }
   function num(id, def) {
@@ -145,7 +146,7 @@ window.MMC = (function () {
 
   // ---------- navigation commune ----------
   function nav(page) {
-    const links = [['cours.html', 'Cours'], ['labo.html', 'Laboratoire'], ['exerciseur.html', 'Exerciseur']];
+    const links = [['cours.html', 'Cours'], ['labo.html', 'Laboratoire'], ['exerciseur.html', 'Exerciseur'], ['formulaire.html', 'Formulaire']];
     const h = document.querySelector('header.top');
     if (!h) return;
     h.innerHTML = '<a class="brand" href="index.html"><span class="badge">MC</span><span><b>Mécanique des milieux continus</b><small>contraintes · déformations · élasticité — le socle du génie civil</small></span></a>' +

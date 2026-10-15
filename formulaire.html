@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Formulaire de mécanique des milieux continus : déformations, contraintes, Hooke, solutions classiques, critères — aide-mémoire imprimable">
+<meta name="theme-color" content="#7c2d12">
+<title>Formulaire — Mécanique des milieux continus</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<style>
+.fm{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.fm .box{margin:0}.fm .box h3{margin:0 0 6px;font-size:1rem}
+.fm .formula{margin:6px 0;padding:4px}
+.gl td:first-child{font-weight:600}
+@media print{header.top,footer,.noprint{display:none}main{max-width:none;padding:0}.fm{grid-template-columns:1fr 1fr}body{font-size:12px}h1{font-size:1.5rem}.box{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="top"></header>
+<main>
+<h1>Formulaire</h1>
+<p class="lead noprint">Toutes les formules du cours. <button onclick="window.print()">Imprimer</button></p>
+
+<div class="fm">
+<div class="box"><h3>Déformations (ch. 2)</h3>
+<div class="formula">\(\varepsilon_{ij}=\tfrac12(u_{i,j}+u_{j,i})\quad \omega_{ij}=\tfrac12(u_{i,j}-u_{j,i})\)</div>
+<div class="formula">\(\gamma_{xy}=2\varepsilon_{xy}\qquad \theta=\mathrm{tr}\,\boldsymbol\varepsilon=\Delta V/V\)</div>
+<div class="formula">\(\varepsilon(\alpha)=\varepsilon_{xx}\cos^2\alpha+\varepsilon_{yy}\sin^2\alpha+\gamma_{xy}\sin\alpha\cos\alpha\)</div>
+<div class="formula">rosette : \(\gamma_{xy}=2\varepsilon_{45}-\varepsilon_0-\varepsilon_{90}\)</div>
+<div class="formula">thermique : \(\boldsymbol\varepsilon_{th}=\alpha\Delta T\,\mathbf I\)</div>
+</div>
+<div class="box"><h3>Contraintes (ch. 3)</h3>
+<div class="formula">\(\vec T=\boldsymbol\sigma\cdot\vec n\quad \sigma_n=\vec n\cdot\boldsymbol\sigma\cdot\vec n\quad \tau=\sqrt{|\vec T|^2-\sigma_n^2}\)</div>
+<div class="formula">équilibre : \(\sigma_{ij,j}+f_i=0\)</div>
+<div class="formula">\(I_1=\mathrm{tr}\,\boldsymbol\sigma\quad p=I_1/3\quad \mathbf s=\boldsymbol\sigma-p\mathbf I\quad q=\sqrt{3J_2}\)</div>
+<div class="formula">\(q=\sqrt{\tfrac12[(\sigma_1-\sigma_2)^2+(\sigma_2-\sigma_3)^2+(\sigma_3-\sigma_1)^2]}\)</div>
+<div class="formula">\(\tau_{max}=\tfrac12(\sigma_1-\sigma_3)\)</div>
+</div>
+<div class="box"><h3>Cercle de Mohr (plan)</h3>
+<div class="formula">\(C=\tfrac12(\sigma_{xx}+\sigma_{yy})\quad R=\sqrt{\left(\tfrac{\sigma_{xx}-\sigma_{yy}}2\right)^2+\sigma_{xy}^2}\)</div>
+<div class="formula">\(\sigma_{1,2}=C\pm R\qquad \tan2\theta_1=\dfrac{2\sigma_{xy}}{\sigma_{xx}-\sigma_{yy}}\)</div>
+<div class="formula">\(\sigma_n=C+\tfrac{\sigma_{xx}-\sigma_{yy}}2\cos2\theta+\sigma_{xy}\sin2\theta\)</div>
+<div class="formula">\(\tau=-\tfrac{\sigma_{xx}-\sigma_{yy}}2\sin2\theta+\sigma_{xy}\cos2\theta\)</div>
+<p class="muted">mêmes formules pour \(\boldsymbol\varepsilon\) avec \(\varepsilon_{xy}=\gamma_{xy}/2\)</p>
+</div>
+<div class="box"><h3>Élasticité isotrope (ch. 4)</h3>
+<div class="formula">\(\boldsymbol\varepsilon=\frac{1+\nu}E\boldsymbol\sigma-\frac\nu E\mathrm{tr}(\boldsymbol\sigma)\mathbf I+\alpha\Delta T\,\mathbf I\)</div>
+<div class="formula">\(\boldsymbol\sigma=\lambda\,\mathrm{tr}(\boldsymbol\varepsilon)\mathbf I+2\mu\boldsymbol\varepsilon\)</div>
+<div class="formula">\(\varepsilon_{xx}=\frac1E[\sigma_{xx}-\nu(\sigma_{yy}+\sigma_{zz})]\qquad \gamma_{xy}=\sigma_{xy}/G\)</div>
+<div class="formula">\(G=\frac E{2(1+\nu)}\quad K=\frac E{3(1-2\nu)}\quad \lambda=\frac{E\nu}{(1+\nu)(1-2\nu)}\)</div>
+<div class="formula">\(w=\tfrac12\boldsymbol\sigma:\boldsymbol\varepsilon=\frac{p^2}{2K}+\frac{q^2}{6G}\)</div>
+<div class="formula">bloqué : \(\sigma=-E\alpha\Delta T\) (barre), \(-\frac{E\alpha\Delta T}{1-\nu}\) (dalle)</div>
+</div>
+<div class="box"><h3>États plans</h3>
+<div class="formula">contraintes planes : \(\sigma_{zz}=0\), \(\varepsilon_{zz}=-\frac\nu E(\sigma_{xx}+\sigma_{yy})\)</div>
+<div class="formula">déformations planes : \(\varepsilon_{zz}=0\), \(\sigma_{zz}=\nu(\sigma_{xx}+\sigma_{yy})\)</div>
+<div class="formula">\(E'=\frac E{1-\nu^2}\quad \nu'=\frac\nu{1-\nu}\) (déf. planes)</div>
+</div>
+<div class="box"><h3>Solutions classiques (ch. 5)</h3>
+<div class="formula">traction : \(\sigma=\frac NA\quad \Delta L=\frac{NL}{EA}\)</div>
+<div class="formula">flexion : \(\sigma=-\frac{My}I\quad \kappa=\frac M{EI}\quad I_{rect}=\frac{bh^3}{12}\)</div>
+<div class="formula">torsion : \(\tau=\frac{M_tr}J\quad \alpha=\frac{M_t}{GJ}\quad J=\frac{\pi d^4}{32}\)</div>
+<div class="formula">Lamé : \(\sigma_r=A-\frac B{r^2},\ \sigma_\theta=A+\frac B{r^2}\) ; \(A=\frac{p_aa^2-p_bb^2}{b^2-a^2},\ B=\frac{(p_a-p_b)a^2b^2}{b^2-a^2}\)</div>
+<div class="formula">Boussinesq : \(\sigma_z=\frac{3P}{2\pi}\frac{z^3}{R^5}\) ; plaque : \(\sigma_z=q\left[1-\frac{z^3}{(a^2+z^2)^{3/2}}\right]\), \(s_0=\frac{2(1-\nu^2)qa}E\)</div>
+<div class="formula">Kirsch : \(\sigma_\theta=\sigma_\infty(1-2\cos2\theta)\) au bord, max \(3\sigma_\infty\)</div>
+<div class="formula">Odemark : \(h_e=0{,}9\,h_1(E_1/E_2)^{1/3}\)</div>
+</div>
+<div class="box"><h3>Critères (ch. 6)</h3>
+<div class="formula">Tresca : \(\sigma_1-\sigma_3\le\sigma_e\)</div>
+<div class="formula">von Mises : \(q\le\sigma_e\) ; plan : \(\sqrt{\sigma^2+3\tau^2}\le f_y\)</div>
+<div class="formula">Rankine : \(\sigma_1\le f_t\)</div>
+<div class="formula">Mohr-Coulomb : \(\tau\le c+\sigma'_n\tan\varphi\)</div>
+<div class="formula">\(\sigma_1=\sigma_3K_p+2c\sqrt{K_p}\), \(K_p=\frac{1+\sin\varphi}{1-\sin\varphi}\), rupture à \(45°+\varphi/2\)</div>
+</div>
+<div class="box"><h3>Vers la RDM (ch. 7)</h3>
+<div class="formula">\(N=\int\sigma_{xx}dA\quad M_z=-\int y\sigma_{xx}dA\quad T_y=\int\sigma_{xy}dA\)</div>
+<div class="formula">\(\sigma_{xx}=\frac NA-\frac{M_zy}{I_z}\qquad \tau=\frac{TQ}{Ib}\)</div>
+<div class="formula">\(\frac{dT}{dx}=-p\qquad \frac{dM}{dx}=T\)</div>
+<div class="formula">\(\sigma_{1,2}=\frac\sigma2\pm\sqrt{\frac{\sigma^2}4+\tau^2}\quad \tan2\theta=\frac{2\tau}\sigma\)</div>
+</div>
+<div class="box"><h3>Ordres de grandeur</h3>
+<div class="tw"><table><tr><th>Matériau</th><th>E (MPa)</th><th>ν</th><th>α (10⁻⁶/°C)</th></tr>
+<tr><td>Acier</td><td>210 000</td><td>0,30</td><td>12</td></tr><tr><td>Béton</td><td>30 000</td><td>0,20</td><td>10</td></tr><tr><td>Bois</td><td>11 000</td><td>—</td><td>4</td></tr><tr><td>Enrobé</td><td>5 000–10 000</td><td>0,35</td><td>25</td></tr><tr><td>GNT</td><td>200–600</td><td>0,35</td><td>—</td></tr><tr><td>Sol</td><td>5–100</td><td>0,3–0,45</td><td>—</td></tr></table></div>
+<p class="muted">1 MPa = 1 N/mm² = 1 000 kPa ; 1 µε = 10⁻⁶ ; acier σ<sub>e</sub> ≈ 235–460 MPa ; béton f<sub>c</sub> ≈ 25–50, f<sub>t</sub> ≈ 2–4 MPa.</p>
+</div>
+</div>
+
+<h2>Glossaire français – anglais</h2>
+<div class="tw"><table class="gl">
+<tr><th>Français</th><th>Anglais</th><th>Symbole</th></tr>
+<tr><td>milieu continu</td><td>continuum</td><td></td></tr>
+<tr><td>déplacement</td><td>displacement</td><td>u</td></tr>
+<tr><td>déformation (allongement relatif)</td><td>strain (normal strain)</td><td>ε</td></tr>
+<tr><td>distorsion, glissement</td><td>shear strain</td><td>γ</td></tr>
+<tr><td>contrainte normale / tangentielle</td><td>normal / shear stress</td><td>σ, τ</td></tr>
+<tr><td>vecteur contrainte</td><td>traction vector</td><td>T</td></tr>
+<tr><td>contraintes principales</td><td>principal stresses</td><td>σ<sub>1</sub>, σ<sub>2</sub>, σ<sub>3</sub></td></tr>
+<tr><td>déviateur</td><td>deviatoric stress</td><td>s</td></tr>
+<tr><td>module d'Young</td><td>Young's modulus</td><td>E</td></tr>
+<tr><td>coefficient de Poisson</td><td>Poisson's ratio</td><td>ν</td></tr>
+<tr><td>module de cisaillement</td><td>shear modulus</td><td>G, μ</td></tr>
+<tr><td>module de compressibilité</td><td>bulk modulus</td><td>K</td></tr>
+<tr><td>loi de comportement</td><td>constitutive law</td><td></td></tr>
+<tr><td>petites perturbations</td><td>small strain (infinitesimal) theory</td><td></td></tr>
+<tr><td>contraintes planes / déformations planes</td><td>plane stress / plane strain</td><td></td></tr>
+<tr><td>limite élastique</td><td>yield stress</td><td>σ<sub>e</sub>, f<sub>y</sub></td></tr>
+<tr><td>critère de plasticité</td><td>yield criterion</td><td></td></tr>
+<tr><td>effort tranchant / moment fléchissant</td><td>shear force / bending moment</td><td>T (V), M</td></tr>
+<tr><td>poutre, fibre neutre</td><td>beam, neutral axis</td><td></td></tr>
+<tr><td>gauchissement</td><td>warping</td><td></td></tr>
+</table></div>
+</main>
+<footer>KSR · Ahmed Ksentini — ksr-infra.org · Mécanique des milieux continus, usage pédagogique.</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="js/common.js"></script>
+<script>MMC.nav('formulaire.html');MMC.katex();</script>
+</body>
+</html>

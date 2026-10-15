@@ -6,6 +6,59 @@
   MMC.nav('cours.html');
   MMC.katex();
 
+  // ---- ch0 : changement de repère
+  MMC.bind('c-rot', () => {
+    const sx = num('ro-sxx'), sy = num('ro-syy'), t = num('ro-sxy'), th = num('ro-th') * deg;
+    const c = Math.cos(th), s = Math.sin(th);
+    // σ' = R σ Rᵀ avec R = [[c, s], [-s, c]] (composantes dans le repère tourné de θ)
+    const sxx = c * c * sx + 2 * c * s * t + s * s * sy, syy = s * s * sx - 2 * c * s * t + c * c * sy, sxy = -c * s * sx + (c * c - s * s) * t + c * s * sy;
+    rows('ro-out', [
+      ['R = [cos θ  sin θ ; −sin θ  cos θ]', '[' + fmt(c, 3) + '  ' + fmt(s, 3) + ' ; ' + fmt(-s, 3) + '  ' + fmt(c, 3) + ']'],
+      ["σ'<sub>x'x'</sub>", fmt(sxx, 2) + ' MPa'], ["σ'<sub>y'y'</sub>", fmt(syy, 2) + ' MPa'], ["σ'<sub>x'y'</sub>", fmt(sxy, 2) + ' MPa'],
+      ['trace (invariante)', fmt(sx + sy, 2) + ' = ' + fmt(sxx + syy, 2)], ['déterminant (invariant)', fmt(sx * sy - t * t, 1) + ' = ' + fmt(sxx * syy - sxy * sxy, 1)]
+    ]);
+  });
+
+  // ---- ch4 : thermique
+  MMC.bind('c-th', () => {
+    const [E, nu, al] = document.getElementById('th-mat').value.split(',').map(Number), dT = num('th-dT'), mode = document.getElementById('th-mode').value, L = num('th-L');
+    const eth = al * 1e-6 * dT;
+    const sig = mode === '1' ? -E * eth : mode === '2' ? -E * eth / (1 - nu) : 0;
+    rows('th-out', [
+      ['déformation thermique libre α ΔT', fmt(eth * 1e6, 0) + ' µε → ΔL libre = ' + fmt(eth * L * 1000, 2) + ' mm sur ' + L + ' m'],
+      ['contrainte si bloqué', fmt(sig, 1) + ' MPa' + (sig < 0 ? ' (compression)' : sig > 0 ? ' (traction)' : '')],
+      ['formule', mode === '1' ? 'σ = −E α ΔT' : mode === '2' ? 'σ = −E α ΔT / (1 − ν)' : 'σ = 0 : la dilatation libre ne contraint pas'],
+      ['force dans une barre de 1 000 mm²', fmt(sig * 1000 / 1000, 1) + ' kN'],
+      ['ne dépend pas de L', 'la longueur change ΔL, pas σ']
+    ]);
+  });
+
+  // ---- ch5 : torsion
+  MMC.bind('c-tor', () => {
+    const M = num('to-M') * 1e6, d = num('to-d'), di = num('to-di'), G = num('to-G'), L = num('to-L') * 1000;
+    if (di >= d) { rows('to-out', [['géométrie', 'd intérieur < d extérieur', 'ko']]); return; }
+    const J = Math.PI * (d ** 4 - di ** 4) / 32, tmax = M * d / 2 / J, al = M / (G * J);
+    rows('to-out', [
+      ['J', fmt(J / 1e6, 3) + ' ×10⁶ mm⁴'], ['τ<sub>max</sub> = M<sub>t</sub>(d/2)/J', fmt(tmax, 2) + ' MPa (sur la peau ; 0 sur l\'axe)'],
+      ['contraintes principales ± τ<sub>max</sub> à 45°', fmt(tmax, 2) + ' ; ' + fmt(-tmax, 2) + ' MPa'],
+      ['angle unitaire α = M<sub>t</sub>/(GJ)', fmt(al * 1e6, 3) + ' ×10⁻⁶ rad/mm'], ['rotation sur L', fmt(al * L / deg, 3) + ' °'],
+      ['γ<sub>max</sub> = τ<sub>max</sub>/G', fmt(tmax / G * 1e6, 0) + ' µrad']
+    ]);
+  });
+
+  // ---- ch5 : Odemark
+  MMC.bind('c-ode', () => {
+    const q = num('od-q'), a = num('od-a'), h = num('od-h'), E1 = num('od-E1'), E2 = num('od-E2');
+    const he = 0.9 * h * Math.cbrt(E1 / E2), sz = q * (1 - he ** 3 / (a * a + he * he) ** 1.5), sz0 = q * (1 - h ** 3 / (a * a + h * h) ** 1.5);
+    rows('od-out', [
+      ['épaisseur équivalente h<sub>e</sub> = 0,9 h<sub>1</sub> (E<sub>1</sub>/E<sub>2</sub>)<sup>1/3</sup>', fmt(he, 3) + ' m'],
+      ['σ<sub>z</sub> au sommet du sol (Boussinesq à h<sub>e</sub>)', fmt(sz, 1) + ' kPa = ' + fmt(100 * sz / q, 1) + ' % de q'],
+      ['sans chaussée (Boussinesq à h<sub>1</sub>, massif homogène)', fmt(sz0, 1) + ' kPa = ' + fmt(100 * sz0 / q, 1) + ' % de q'],
+      ['ce que fait la rigidité de la chaussée', 'elle diffuse la charge : la contrainte sur le sol est divisée par ' + fmt(sz0 / sz, 2)],
+      ['ε<sub>z</sub> sol ≈ σ<sub>z</sub>/E<sub>2</sub> (ordre de grandeur)', fmt(sz / E2 * 1e3, 0) + ' µε — à comparer aux ≈ 500 à 1 000 µε admissibles']
+    ]);
+  });
+
   // ---- ch2 : gradient -> ε, ω
   MMC.bind('c-grad', () => {
     const uxx = num('g-uxx'), uxy = num('g-uxy'), uyx = num('g-uyx'), uyy = num('g-uyy');

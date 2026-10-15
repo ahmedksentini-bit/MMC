@@ -7,13 +7,14 @@ Site statique du cours de mécanique des milieux continus pour le génie civil, 
 | Page | Rôle |
 |---|---|
 | `index.html` | accueil, plan |
-| `cours.html` | le cours en 7 chapitres, calculateurs dans le fil du texte |
-| `labo.html` | laboratoire digital : 6 bancs d'essai interactifs (canvas) |
-| `exerciseur.html` | exercices à données aléatoires, vérification, solution |
+| `cours.html` | le cours (boîte à outils + 7 chapitres), 16 calculateurs dans le fil du texte |
+| `labo.html` | laboratoire digital : 8 bancs d'essai interactifs (canvas) |
+| `exerciseur.html` | vrai/faux (20 questions) et exercices à données aléatoires, vérification, solution |
+| `formulaire.html` | aide-mémoire imprimable, ordres de grandeur, glossaire FR–EN |
 
-Chapitres : 1 milieu continu · 2 déformations · 3 contraintes · 4 élasticité linéaire · 5 solutions classiques (traction, flexion, torsion, Lamé, Boussinesq, Kirsch) · 6 critères (Tresca, von Mises, Rankine, Mohr-Coulomb) · 7 de la MMC à la RDM.
+Chapitres : 0 boîte à outils mathématiques · 1 milieu continu · 2 déformations · 3 contraintes · 4 élasticité linéaire · 5 solutions classiques (traction, flexion, torsion, Lamé, Boussinesq, Kirsch) · 6 critères (Tresca, von Mises, Rankine, Mohr-Coulomb) · 7 de la MMC à la RDM.
 
-Bancs : carré qui se déforme · cercle de Mohr · éprouvette en traction · bulbe de Boussinesq · trou de Kirsch · critères.
+Bancs : carré qui se déforme · cercle de Mohr · éprouvette en traction · bulbe de Boussinesq · trou de Kirsch · critères · tube de Lamé · torsion.
 
 ## Technique
 

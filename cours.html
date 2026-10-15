@@ -18,6 +18,7 @@
 
 <div class="toc"><details><summary>§ Sommaire</summary>
 <ol>
+<li><a href="#ch0b">Boîte à outils mathématiques</a></li>
 <li><a href="#ch1">Le milieu continu</a></li>
 <li><a href="#ch2">Déformations</a></li>
 <li><a href="#ch3">Contraintes</a></li>
@@ -31,6 +32,28 @@
 <p>La MMC décrit un solide (ou un sol, ou un fluide) comme une matière continue, sans grains ni atomes, dans laquelle on peut définir en chaque point une <b>déformation</b> et une <b>contrainte</b>. Ces deux grandeurs ne sont pas des nombres mais des <b>tenseurs symétriques 3×3</b> : six composantes, trois valeurs principales, trois directions principales. Tout le cours tourne autour de ces deux objets et de la loi qui les relie.</p>
 <div class="box"><b class="t">Notations</b>
 Axes \(x, y, z\) (ou \(1,2,3\)). Vecteur \(\vec u = (u_x,u_y,u_z)\). Tenseur symétrique \(\boldsymbol\sigma\) de composantes \(\sigma_{ij}=\sigma_{ji}\). Unités : contraintes en Pa (MPa en pratique, kPa pour les sols), déformations sans dimension (souvent en <i>microdéformations</i>, 1 µε = 10⁻⁶). Le cours reste en <b>petites perturbations</b> : déplacements et déformations petits devant les dimensions du solide — c'est le cadre de presque tout le génie civil.</div>
+
+<h2 id="ch0b">0 · Boîte à outils mathématiques</h2>
+<p>Tout ce qu'il faut de mathématiques pour lire ce cours tient en une page. Le reste s'apprend en l'utilisant.</p>
+<h3>Vecteurs</h3>
+<p>Un vecteur \(\vec a=(a_x,a_y,a_z)\) a une norme \(|\vec a|=\sqrt{a_x^2+a_y^2+a_z^2}\). Le <b>produit scalaire</b> \(\vec a\cdot\vec b = a_xb_x+a_yb_y+a_zb_z = |\vec a||\vec b|\cos\alpha\) mesure la projection de l'un sur l'autre : nul si perpendiculaires. Un vecteur <b>unitaire</b> a une norme 1 ; la normale \(\vec n\) d'une facette en est un, et \(\vec a\cdot\vec n\) est la composante de \(\vec a\) selon \(\vec n\). Dans le plan, la normale inclinée de \(\theta\) sur \(x\) s'écrit \(\vec n=(\cos\theta,\sin\theta)\).</p>
+<h3>Matrices et tenseurs</h3>
+<p>Un tenseur d'ordre 2 est, dans un repère donné, une matrice 3×3 ; il agit sur un vecteur par le produit matrice-vecteur : \((\boldsymbol\sigma\cdot\vec n)_i=\sum_j\sigma_{ij}n_j\). Ce qui en fait un tenseur et non une simple matrice, c'est la façon dont ses composantes changent quand on <b>tourne le repère</b> : si \(\mathbf R\) est la matrice de rotation, \(\boldsymbol\sigma' = \mathbf R\,\boldsymbol\sigma\,\mathbf R^{\mathsf T}\). Le cercle de Mohr (ch. 3) est cette formule dessinée. Trois notions à connaître :</p>
+<ul>
+<li><b>trace</b> \(\mathrm{tr}\,\boldsymbol\sigma=\sigma_{xx}+\sigma_{yy}+\sigma_{zz}\) et <b>déterminant</b> : ils ne changent pas avec le repère (invariants) ;</li>
+<li><b>matrice symétrique</b> (\(\sigma_{ij}=\sigma_{ji}\)) : ses valeurs propres sont réelles et ses vecteurs propres perpendiculaires — c'est ce qui garantit l'existence des directions principales ;</li>
+<li><b>valeurs propres</b> \(\lambda\) et <b>vecteurs propres</b> \(\vec v\) : \(\boldsymbol\sigma\cdot\vec v=\lambda\vec v\), soit \(\det(\boldsymbol\sigma-\lambda\mathbf I)=0\). En 2D c'est une équation du second degré ; en 3D, du troisième — le calculateur du chapitre 3 la résout.</li>
+</ul>
+<h3>Notation indicielle</h3>
+<p>Les indices \(i,j\) valent \(1,2,3\) (ou \(x,y,z\)). Un indice <b>répété</b> dans un produit signifie une somme (convention d'Einstein) : \(\sigma_{ii}=\sigma_{11}+\sigma_{22}+\sigma_{33}\), \(T_i=\sigma_{ij}n_j = \sum_j\sigma_{ij}n_j\). Le <b>symbole de Kronecker</b> \(\delta_{ij}\) vaut 1 si \(i=j\), 0 sinon : c'est la matrice identité \(\mathbf I\). La dérivée partielle s'abrège d'une virgule : \(u_{i,j}=\partial u_i/\partial x_j\). Avec cela, les équations du cours tiennent en une ligne chacune : \(\varepsilon_{ij}=\tfrac12(u_{i,j}+u_{j,i})\), \(\sigma_{ij,j}+f_i=0\), \(\sigma_{ij}=\lambda\varepsilon_{kk}\delta_{ij}+2\mu\varepsilon_{ij}\).</p>
+<h3>Dérivées partielles, gradient, divergence</h3>
+<p>Un champ \(f(x,y,z)\) a trois dérivées partielles ; le <b>gradient</b> \(\nabla f=(\partial f/\partial x,\partial f/\partial y,\partial f/\partial z)\) pointe vers la plus forte croissance. Le gradient d'un vecteur \(\vec u\) est la matrice des \(\partial u_i/\partial x_j\) (ch. 2). La <b>divergence</b> d'un vecteur est \(\mathrm{div}\,\vec u=\partial u_x/\partial x+\partial u_y/\partial y+\partial u_z/\partial z\) — la variation relative de volume ; celle d'un tenseur est le vecteur \((\mathrm{div}\,\boldsymbol\sigma)_i=\sum_j\partial\sigma_{ij}/\partial x_j\) (ch. 3). Le <b>laplacien</b> \(\Delta f=\partial^2f/\partial x^2+\partial^2f/\partial y^2+\partial^2f/\partial z^2\) apparaît dans Navier (ch. 5).</p>
+<div class="calc" id="c-rot"><p class="ct">Changement de repère d'un tenseur plan : σ' = R σ Rᵀ</p>
+<div class="grid">
+<label>σ<sub>xx</sub> (MPa)<input id="ro-sxx" value="80"></label><label>σ<sub>yy</sub><input id="ro-syy" value="-40"></label><label>σ<sub>xy</sub><input id="ro-sxy" value="30"></label><label>rotation du repère θ (°)<input id="ro-th" value="30"></label>
+</div><div class="out" id="ro-out"></div></div>
+<div class="box key"><b class="t">À retenir</b>
+Produit scalaire = projection. Tenseur = matrice qui tourne avec le repère (\(\mathbf R\boldsymbol\sigma\mathbf R^{\mathsf T}\)) ; symétrique ⇒ valeurs propres réelles et directions perpendiculaires. Indice répété = somme. Gradient, divergence, laplacien.</div>
 
 <h2 id="ch1">1 · Le milieu continu</h2>
 <h3>Une matière sans grains</h3>
@@ -93,12 +116,18 @@ La MMC vaut à l'échelle du VER et au-dessus. On suit la matière (Lagrange) et
 <label>ε<sub>90°</sub> (µε)<input id="r-e90" value="-240"></label>
 </div><div class="out" id="r-out"></div></div>
 
+<h3>Déformation thermique</h3>
+<p>Une variation de température \(\Delta T\) dilate la matière dans toutes les directions sans la distordre : c'est une déformation sphérique, \(\boldsymbol\varepsilon_{th}=\alpha\,\Delta T\,\mathbf I\), avec \(\alpha\) le coefficient de dilatation. Elle ne crée aucune contrainte tant que rien ne l'empêche ; c'est le blocage qui crée la contrainte (ch. 4).</p>
+<div class="tw"><table><tr><th>Matériau</th><th>α (10⁻⁶ /°C)</th><th>Allongement d'une barre de 10 m pour ΔT = 30 °C</th></tr>
+<tr><td>Acier</td><td>12</td><td>3,6 mm</td></tr><tr><td>Béton</td><td>10 (8 à 12 selon granulats)</td><td>3,0 mm</td></tr><tr><td>Aluminium</td><td>23</td><td>6,9 mm</td></tr><tr><td>Enrobé bitumineux</td><td>20 à 30</td><td>6 à 9 mm</td></tr><tr><td>Bois (sens du fil)</td><td>3 à 5</td><td>1 mm</td></tr></table></div>
+<p>Acier et béton ont presque le même \(\alpha\) : c'est ce qui rend le béton armé possible. Un pont de 100 m varie de 3 à 4 cm entre hiver et été, d'où les joints de dilatation ; une dalle de béton bloquée fissure tous les 4 à 6 m, d'où les joints de retrait.</p>
 <h3>Compatibilité</h3>
 <p>Trois déplacements donnent six déformations : on ne peut pas choisir les six librement, il faut qu'elles dérivent d'un champ \(\vec u\) continu. En 2D, cela s'écrit en une équation :</p>
 <div class="formula">\[\frac{\partial^2\varepsilon_{xx}}{\partial y^2}+\frac{\partial^2\varepsilon_{yy}}{\partial x^2} = 2\,\frac{\partial^2\varepsilon_{xy}}{\partial x\,\partial y}\]</div>
 <p>Un champ de déformation uniforme ou linéaire la vérifie toujours. Elle importe quand on part des déformations (mesures, photogrammétrie) pour remonter aux déplacements.</p>
 <div class="box key"><b class="t">À retenir</b>
 \(\boldsymbol\varepsilon\) est la partie symétrique du gradient de \(\vec u\). Diagonale : allongements ; hors diagonale : moitié des distorsions ; trace : variation de volume. Trois directions principales sans distorsion, distorsion maximale à 45°.</div>
+<div class="box warn"><b class="t">Erreurs fréquentes</b>Confondre \(\varepsilon_{xy}\) et \(\gamma_{xy}\) (facteur 2) ; oublier que la rotation \(\omega\) ne déforme pas ; écrire une déformation en % ou en mm au lieu d'un nombre sans dimension (1 % = 10 000 µε, énorme pour un béton) ; prendre la moyenne arithmétique de \(\varepsilon_{xx}\) et \(\varepsilon_{yy}\) pour \(\varepsilon_1\).</div>
 <div class="chap-links"><a class="btn" href="exerciseur.html#ch2">Exercices du chapitre</a><a class="btn" href="labo.html#carre">Banc : le carré qui se déforme</a></div>
 
 <h2 id="ch3">3 · Contraintes</h2>
@@ -193,6 +222,7 @@ Un sol horizontal pesant : \(\sigma_{zz}\) ne dépend que de \(z\), la première
 <p class="muted">Le <a href="labo.html#mohr">banc « cercle de Mohr »</a> fait tourner la facette à la main.</p></div>
 <div class="box key"><b class="t">À retenir</b>
 \(\vec T=\boldsymbol\sigma\cdot\vec n\). Six composantes, trois contraintes principales, trois invariants. \(p\) comprime, \(\mathbf s\) distord. Équilibre : \(\mathrm{div}\,\boldsymbol\sigma+\vec f=0\). Cercle de Mohr : rotation de \(\theta\) sur la facette, de \(2\theta\) sur le cercle ; \(\tau_{max}=(\sigma_1-\sigma_3)/2\).</div>
+<div class="box warn"><b class="t">Erreurs fréquentes</b>Tourner le point de \(\theta\) sur le cercle de Mohr au lieu de \(2\theta\) ; oublier la troisième contrainte principale (souvent 0) quand on cherche \(\tau_{max}\) ; mélanger la convention mécanique (traction +) et la convention géotechnique (compression +) ; calculer \(\tau\) sur une facette avec la formule de \(\sigma_n\) ; prendre \(\sigma_{xy}\) pour \(\tau_{max}\).</div>
 <div class="chap-links"><a class="btn" href="exerciseur.html#ch3">Exercices du chapitre</a><a class="btn" href="labo.html#mohr">Banc : cercle de Mohr</a></div>
 
 <h2 id="ch4">4 · Loi de comportement : élasticité linéaire</h2>
@@ -231,12 +261,22 @@ Un sol horizontal pesant : \(\sigma_{zz}\) ne dépend que de \(z\), la première
 <tr><td>Cas</td><td>plaque mince chargée dans son plan, voile, âme de poutre</td><td>ouvrage long : remblai, mur, tunnel, chaussée sous une roue (approché), barrage-poids</td></tr>
 <tr><td>Ce qui n'est pas nul</td><td>\(\varepsilon_{zz}=-\frac{\nu}{E}(\sigma_{xx}+\sigma_{yy})\)</td><td>\(\sigma_{zz}=\nu(\sigma_{xx}+\sigma_{yy})\)</td></tr>
 <tr><td>Loi plane</td><td>\(E,\nu\) inchangés</td><td>remplacer \(E\) par \(E/(1-\nu^2)\) et \(\nu\) par \(\nu/(1-\nu)\)</td></tr></table></div>
+<h3>Thermoélasticité : la contrainte naît du blocage</h3>
+<p>La déformation totale est la somme de la part élastique (due aux contraintes) et de la part thermique (libre) :</p>
+<div class="formula">\[\boldsymbol\varepsilon = \frac{1+\nu}{E}\boldsymbol\sigma-\frac{\nu}{E}\mathrm{tr}(\boldsymbol\sigma)\mathbf I+\alpha\,\Delta T\,\mathbf I\]</div>
+<p>Barre libre : \(\varepsilon=\alpha\Delta T\), \(\sigma=0\). Barre bloquée aux deux bouts : \(\varepsilon=0\), donc \(\sigma=-E\alpha\Delta T\) — un rail ou un tirant chauffé de 30 °C se comprime de \(210\,000\times12\cdot10^{-6}\times30 = 76\) MPa, quelle que soit sa longueur. Dalle bloquée dans son plan (deux directions) : \(\sigma=-E\alpha\Delta T/(1-\nu)\). Un refroidissement met en traction : c'est ainsi que le retrait et le gradient thermique fissurent le béton.</p>
+<div class="calc" id="c-th"><p class="ct">Contrainte thermique d'un élément bloqué</p>
+<div class="grid">
+<label>Matériau<select id="th-mat"><option value="210000,0.3,12">acier</option><option value="33000,0.2,10">béton</option><option value="70000,0.33,23">aluminium</option><option value="7000,0.35,25">enrobé</option></select></label>
+<label>ΔT (°C)<input id="th-dT" value="30"></label><label>Blocage<select id="th-mode"><option value="1">barre (une direction)</option><option value="2">dalle (deux directions)</option><option value="0">libre</option></select></label><label>Longueur L (m)<input id="th-L" value="10"></label>
+</div><div class="out" id="th-out"></div></div>
 <h3>Énergie de déformation</h3>
 <p>Le travail des contraintes se stocke dans le solide élastique. Par unité de volume :</p>
 <div class="formula">\[w = \frac12\,\boldsymbol\sigma:\boldsymbol\varepsilon = \frac12\sum_{ij}\sigma_{ij}\varepsilon_{ij} = \frac{p^2}{2K}+\frac{q^2}{6G}\]<span class="ref">part volumique + part de distorsion — c'est la seconde que von Mises borne (ch. 6)</span></div>
 <p>C'est la base des méthodes énergétiques de la RDM (Clapeyron, Castigliano, éléments finis).</p>
 <div class="box key"><b class="t">À retenir</b>
 Deux constantes suffisent pour un matériau isotrope : \((E,\nu)\), ou \((\lambda,\mu)\), ou \((K,G)\). Traction selon \(x\) : allongement \(\sigma/E\) selon \(x\), contraction \(\nu\sigma/E\) selon \(y,z\). Cisaillement : \(\gamma=\tau/G\). Déformations planes pour les ouvrages longs, contraintes planes pour les plaques minces.</div>
+<div class="box warn"><b class="t">Erreurs fréquentes</b>Oublier les contractions de Poisson des deux autres contraintes dans \(\varepsilon_{xx}\) ; diviser \(\sigma_{xy}\) par \(E\) au lieu de \(G\) ; mélanger MPa et kPa (un sol : kPa ; un béton : MPa) ; croire que \(\sigma_{zz}=0\) entraîne \(\varepsilon_{zz}=0\) (c'est l'inverse qui est faux aussi) ; prendre \(\nu=0{,}5\) pour un béton.</div>
 <div class="chap-links"><a class="btn" href="exerciseur.html#ch4">Exercices du chapitre</a><a class="btn" href="labo.html#traction">Banc : éprouvette en traction</a></div>
 
 <h2 id="ch5">5 · Le problème d'élasticité et ses solutions classiques</h2>
@@ -266,6 +306,12 @@ Deux constantes suffisent pour un matériau isotrope : \((E,\nu)\), ou \((\lambd
 
 <h3>Torsion d'un cylindre circulaire</h3>
 <p>Couple \(M_t\), sections qui tournent les unes par rapport aux autres de \(\alpha\) par unité de longueur sans gauchir (vrai seulement pour la section circulaire) : \(\gamma = \alpha r\), \(\tau = G\alpha r\), maximale sur la peau ; \(M_t = G\alpha J\) avec \(J=\pi d^4/32\). Une section non circulaire gauchit : la formule n'est plus valable, et une section ouverte mince (profilé en U, en I) est extrêmement souple en torsion.</p>
+<div class="formula">\[\tau(r)=\frac{M_t\,r}{J},\qquad \tau_{max}=\frac{M_t}{J}\frac{d}{2},\qquad \alpha=\frac{M_t}{GJ},\qquad J=\frac{\pi d^4}{32}\ \text{(plein)},\quad J=\frac{\pi(d^4-d_i^4)}{32}\ \text{(tube)}\]</div>
+<p>En torsion pure, l'état de contrainte est un cisaillement pur : \(\sigma_1=\tau\), \(\sigma_2=-\tau\), à 45° de l'axe. Un matériau fragile (craie, fonte, béton) rompt donc en torsion selon une hélice à 45° — c'est la facette de \(\sigma_1\), pas celle de \(\tau_{max}\).</p>
+<div class="calc" id="c-tor"><p class="ct">Torsion d'un arbre ou d'un tube circulaire</p>
+<div class="grid">
+<label>M<sub>t</sub> (kN·m)<input id="to-M" value="20"></label><label>d extérieur (mm)<input id="to-d" value="150"></label><label>d intérieur (mm, 0 si plein)<input id="to-di" value="0"></label><label>G (MPa)<input id="to-G" value="80000"></label><label>Longueur L (m)<input id="to-L" value="3"></label>
+</div><div class="out" id="to-out"></div></div>
 
 <h3>Tube épais sous pression (Lamé)</h3>
 <p>Tube de rayons \(a\) (intérieur) et \(b\) (extérieur), pressions \(p_a\) et \(p_b\). En coordonnées cylindriques, avec \(\sigma_{r\theta}=0\) par symétrie, l'équilibre \(d\sigma_r/dr + (\sigma_r-\sigma_\theta)/r=0\) et Hooke donnent :</p>
@@ -288,7 +334,11 @@ Deux constantes suffisent pour un matériau isotrope : \((E,\nu)\), ou \((\lambd
 <label>Plaque : q (kPa)<input id="bo-q" value="200"></label><label>rayon a (m)<input id="bo-a" value="1"></label><label>E (MPa)<input id="bo-E" value="30"></label><label>ν<input id="bo-nu" value="0.3"></label>
 </div><div class="out" id="bo-out"></div></div>
 <div class="box bridge"><b class="t">Vers les chaussées</b>
-Une chaussée est un massif de Boussinesq à plusieurs couches : la solution de Burmister (1943) résout le même problème avec des couches de modules différents collées ou glissantes. Alizé, le logiciel de dimensionnement français, ne fait rien d'autre. Les déformations qu'il fournit — \(\varepsilon_t\) à la base des couches liées, \(\varepsilon_z\) au sommet du sol — sont celles du chapitre 2, et la loi des couches est celle du chapitre 4.</div>
+Une chaussée est un massif de Boussinesq à plusieurs couches : la solution de Burmister (1943) résout le même problème avec des couches de modules différents collées ou glissantes. Alizé, le logiciel de dimensionnement français, ne fait rien d'autre. Les déformations qu'il fournit — \(\varepsilon_t\) à la base des couches liées, \(\varepsilon_z\) au sommet du sol — sont celles du chapitre 2, et la loi des couches est celle du chapitre 4. À la main, on approche le bicouche par <b>Odemark</b> : une couche d'épaisseur \(h_1\) et de module \(E_1\) sur un sol \(E_2\) se comporte comme une couche de même module que le sol et d'épaisseur équivalente \(h_e = 0{,}9\,h_1\,(E_1/E_2)^{1/3}\) ; on applique ensuite Boussinesq à cette profondeur.</div>
+<div class="calc" id="c-ode"><p class="ct">Odemark + Boussinesq : contrainte au sommet du sol sous une roue</p>
+<div class="grid">
+<label>Pression de contact q (kPa)<input id="od-q" value="662"></label><label>Rayon de la roue a (m)<input id="od-a" value="0.125"></label><label>Épaisseur de la chaussée h<sub>1</sub> (m)<input id="od-h" value="0.30"></label><label>E<sub>1</sub> chaussée (MPa)<input id="od-E1" value="5000"></label><label>E<sub>2</sub> sol (MPa)<input id="od-E2" value="50"></label>
+</div><div class="out" id="od-out"></div></div>
 
 <h3>Trou circulaire dans une plaque en traction (Kirsch)</h3>
 <p>Plaque infinie soumise à \(\sigma_\infty\) selon \(x\), percée d'un trou de rayon \(a\). Sur le bord du trou, la contrainte orthoradiale vaut \(\sigma_\theta = \sigma_\infty(1-2\cos2\theta)\) : elle atteint \(3\sigma_\infty\) aux deux points du diamètre perpendiculaire à la traction et \(-\sigma_\infty\) (compression) sur le diamètre parallèle. Le <b>facteur de concentration de contrainte</b> vaut 3, quel que soit le rayon du trou, et l'effet disparaît à trois ou quatre rayons du bord : encore Saint-Venant.</p>
@@ -296,6 +346,7 @@ Une chaussée est un massif de Boussinesq à plusieurs couches : la solution de 
 <p>Trou d'homme dans une poutre-caisson, ouverture dans un voile, galerie dans un massif (où \(\sigma_\infty\) est la contrainte in situ, et le facteur 3 explique les écaillages en paroi), percement dans une plaque métallique : même mécanisme.</p>
 <div class="box key"><b class="t">À retenir</b>
 Unicité, superposition, Saint-Venant. Cinq solutions à connaître : traction (\(N/A\)), flexion (\(My/I\)), torsion (\(M_t r/J\)), Lamé (\(A \pm B/r^2\)), Boussinesq (\(3Pz^3/2\pi R^5\)) — et le facteur 3 de Kirsch.</div>
+<div class="box warn"><b class="t">Erreurs fréquentes</b>Mettre \(y\) à la hauteur totale au lieu de \(h/2\) dans \(My/I\) ; oublier que \(I\) est en mm⁴ et \(M\) en N·mm (120 kN·m = 120·10⁶ N·mm) ; appliquer la formule de torsion à une section non circulaire ; croire que \(\sigma_z\) de Boussinesq dépend de \(E\) ; appliquer la coque mince à un tube épais.</div>
 <div class="chap-links"><a class="btn" href="exerciseur.html#ch5">Exercices du chapitre</a><a class="btn" href="labo.html#boussinesq">Banc : bulbe de Boussinesq</a><a class="btn" href="labo.html#kirsch">Banc : trou de Kirsch</a></div>
 
 <h2 id="ch6">6 · Limite élastique et critères</h2>
@@ -325,6 +376,7 @@ Unicité, superposition, Saint-Venant. Cinq solutions à connaître : traction (
 <p class="muted">Pour Mohr-Coulomb, les compressions sont comptées positives : saisir −σ. Le <a href="labo.html#criteres">banc « critères »</a> trace les surfaces.</p></div>
 <div class="box key"><b class="t">À retenir</b>
 Un critère ramène six composantes à un nombre. Métaux : le cisaillement décide (Tresca, von Mises), la pression ne compte pas. Fragiles : \(\sigma_1\) décide (Rankine). Sols, béton, roches : le cisaillement décide, mais la compression renforce (Mohr-Coulomb), rupture sur la facette à \(45°+\varphi/2\).</div>
+<div class="box warn"><b class="t">Erreurs fréquentes</b>Comparer \(\sigma_{xx}\) seule à \(f_y\) en présence de cisaillement ; oublier de trier les contraintes principales avant Tresca ; appliquer von Mises à un béton ou à un sol ; placer la facette de rupture de Mohr-Coulomb à 45° au lieu de \(45°+\varphi/2\) ; utiliser des contraintes totales au lieu d'effectives dans un sol saturé.</div>
 <div class="chap-links"><a class="btn" href="exerciseur.html#ch6">Exercices du chapitre</a><a class="btn" href="labo.html#criteres">Banc : critères</a></div>
 
 <h2 id="ch7">7 · De la MMC à la RDM</h2>
@@ -356,6 +408,8 @@ Un critère ramène six composantes à un nombre. Métaux : le cisaillement déc
 La RDM est la MMC intégrée sur une section et assortie de l'hypothèse de Navier-Bernoulli. \(N/A\), \(My/I\), \(TQ/Ib\) sont des composantes du tenseur des contraintes, et le cercle de Mohr en donne les directions principales — celles des fissures.</div>
 <div class="chap-links"><a class="btn" href="exerciseur.html#ch7">Exercices du chapitre</a></div>
 
+<h2>Formulaire</h2>
+<p>Toutes les formules du cours sur une page, à imprimer : <a href="formulaire.html">formulaire.html</a>.</p>
 <h2>Pour approfondir</h2>
 <ul>
 <li>J. Salençon, <i>Mécanique des milieux continus</i>, 3 tomes, Éditions de l'École polytechnique — la référence française, complète et rigoureuse.</li>

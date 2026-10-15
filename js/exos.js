@@ -111,6 +111,33 @@
         sol: 'σ<sub>z</sub> = q[1 − z³/(a²+z²)<sup>3/2</sup>] = ' + q + ' × [1 − ' + f(z ** 3, 3) + '/' + f((a * a + z * z) ** 1.5, 3) + '] = ' + f(sz, 1) + ' kPa, soit ' + f(100 * sz / q, 1) + ' % de q. s<sub>0</sub> = 2(1−ν²)qa/E = 2 × ' + f(1 - nu * nu, 4) + ' × ' + q + ' × ' + a + ' / ' + E * 1e3 + ' = ' + f(s0 * 1000, 1) + ' mm. La contrainte ne dépend pas de E ; le tassement, si.'
       };
     } },
+    { ch: 4, title: 'Contrainte thermique', gen() {
+      const mat = pick([['acier', 210000, 0.3, 12], ['béton', 33000, 0.2, 10], ['aluminium', 70000, 0.33, 23]]), dT = pick([-25, -15, 20, 30, 40]), L = pick([6, 10, 12, 25]);
+      const eth = mat[3] * 1e-6 * dT, s1 = -mat[1] * eth, s2 = s1 / (1 - mat[2]);
+      return {
+        text: 'Élément en ' + mat[0] + ' (E = ' + mat[1] + ' MPa, ν = ' + mat[2] + ', α = ' + mat[3] + '·10⁻⁶ /°C), longueur ' + L + ' m, soumis à ΔT = ' + dT + ' °C.',
+        answers: [['allongement libre ΔL (mm)', eth * L * 1000], ['contrainte si barre bloquée (MPa)', s1], ['contrainte si dalle bloquée dans son plan (MPa)', s2]],
+        sol: 'ε<sub>th</sub> = αΔT = ' + f(eth * 1e6, 0) + ' µε, ΔL = ε L = ' + f(eth * L * 1000, 2) + ' mm. Bloqué : ε<sub>totale</sub> = σ/E + αΔT = 0 ⇒ σ = −EαΔT = ' + f(s1, 1) + ' MPa' + (s1 < 0 ? ' (compression)' : ' (traction)') + '. Dalle bloquée selon x et y : σ<sub>xx</sub> = σ<sub>yy</sub> = σ avec (σ − νσ)/E + αΔT = 0 ⇒ σ = −EαΔT/(1−ν) = ' + f(s2, 1) + ' MPa. La longueur n\'intervient pas dans la contrainte.'
+      };
+    } },
+    { ch: 5, title: 'Torsion d\'un arbre', gen() {
+      const d = pick([80, 100, 120, 150, 200]), di = pick([0, 0, 0.6, 0.7]) * d, M = rnd(5, 60, 1), G = 80000, L = pick([2, 3, 4]);
+      const J = Math.PI * (d ** 4 - di ** 4) / 32, t = M * 1e6 * d / 2 / J, al = M * 1e6 / (G * J);
+      return {
+        text: 'Arbre en acier (G = 80 000 MPa), diamètre ' + d + ' mm' + (di ? ', alésé à ' + di + ' mm' : ', plein') + ', longueur ' + L + ' m, couple M<sub>t</sub> = ' + M + ' kN·m.',
+        answers: [['J (×10⁶ mm⁴)', J / 1e6], ['τ<sub>max</sub> (MPa)', t], ['σ<sub>1</sub> (MPa)', t], ['rotation totale (°)', al * L * 1000 / deg]],
+        sol: 'J = π(d⁴ − d<sub>i</sub>⁴)/32 = ' + f(J / 1e6, 3) + ' ×10⁶ mm⁴ ; τ<sub>max</sub> = M<sub>t</sub>(d/2)/J = ' + f(t, 2) + ' MPa sur la peau. Cisaillement pur ⇒ σ<sub>1</sub> = +τ, σ<sub>2</sub> = −τ sur les facettes à 45° de l\'axe. α = M<sub>t</sub>/(GJ) = ' + f(al * 1e6, 3) + ' ×10⁻⁶ rad/mm, rotation sur ' + L + ' m : ' + f(al * L * 1000 / deg, 3) + '°.'
+      };
+    } },
+    { ch: 5, title: 'Concentration de contrainte (Kirsch)', gen() {
+      const s = rnd(40, 200, 5), a = pick([10, 20, 50, 100]), r = pick([1.5, 2, 3]);
+      const sxx = s / 2 * (1 + 1 / r ** 2) + s / 2 * (1 + 3 / r ** 4); // σθ en θ = 90° : (σ/2)(1+a²/r²) + (σ/2)(1+3a⁴/r⁴)
+      return {
+        text: 'Plaque en traction σ<sub>∞</sub> = ' + s + ' MPa percée d\'un trou de rayon a = ' + a + ' mm.',
+        answers: [['σ<sub>θ</sub> maximale au bord du trou (MPa)', 3 * s], ['σ<sub>θ</sub> minimale au bord (MPa)', -s], ['σ<sub>xx</sub> sur l\'axe ⊥ à la traction, à r = ' + r + 'a (MPa)', sxx]],
+        sol: 'Au bord, σ<sub>θ</sub> = σ<sub>∞</sub>(1 − 2cos 2θ) : 3σ<sub>∞</sub> = ' + 3 * s + ' MPa à θ = 90° (diamètre perpendiculaire à la traction), −σ<sub>∞</sub> = ' + (-s) + ' MPa à θ = 0. Sur l\'axe y (θ = 90°), σ<sub>xx</sub> = σ<sub>θ</sub> = (σ<sub>∞</sub>/2)(1 + a²/r²) + (σ<sub>∞</sub>/2)(1 + 3a⁴/r⁴) = ' + f(sxx, 2) + ' MPa à r = ' + r + 'a : l\'effet s\'éteint en quelques rayons, indépendamment de a.'
+      };
+    } },
     // ---------- ch6
     { ch: 6, title: 'Tresca et von Mises en contraintes planes', gen() {
       const s = rnd(-200, 300, 10), t = rnd(20, 180, 10), fy = pick([235, 275, 355, 460]);
@@ -141,6 +168,45 @@
       };
     } }
   ];
+
+  // ---------- QCM vrai / faux ----------
+  const qcm = [
+    ['Une rotation d\'ensemble du solide produit une déformation.', false, 'Elle ne change ni les longueurs ni les angles : seule la partie symétrique du gradient de déplacement déforme.'],
+    ['γ<sub>xy</sub> = 2 ε<sub>xy</sub>.', true, 'La distorsion des ingénieurs est la variation de l\'angle droit ; la composante du tenseur en est la moitié.'],
+    ['La trace du tenseur des déformations est la variation relative de volume.', true, 'ε<sub>xx</sub> + ε<sub>yy</sub> + ε<sub>zz</sub> = ΔV/V en petites perturbations.'],
+    ['Le tenseur des contraintes a neuf composantes indépendantes.', false, 'Il est symétrique (équilibre des moments) : six composantes indépendantes.'],
+    ['Le vecteur contrainte sur une facette est toujours porté par la normale.', false, 'Seulement sur les facettes principales. En général il a une composante tangentielle τ.'],
+    ['Sur le cercle de Mohr, tourner la facette de θ fait tourner le point de 2θ.', true, 'Les formules de rotation sont en cos 2θ et sin 2θ.'],
+    ['τ<sub>max</sub> vaut toujours (σ<sub>1</sub> − σ<sub>2</sub>)/2 en contraintes planes.', false, 'La troisième contrainte principale (0) peut être la plus petite ou la plus grande : τ<sub>max</sub> = (σ<sub>max</sub> − σ<sub>min</sub>)/2 sur les trois.'],
+    ['I<sub>1</sub>, I<sub>2</sub>, I<sub>3</sub> changent quand on tourne le repère.', false, 'Ce sont des invariants : ils caractérisent l\'état de contrainte indépendamment des axes.'],
+    ['Dans un sol horizontal, σ<sub>v</sub> = γz résulte des équations d\'équilibre.', true, '∂σ<sub>zz</sub>/∂z = γ avec σ<sub>zz</sub> = 0 en surface.'],
+    ['Un matériau isotrope élastique linéaire est entièrement défini par E seul.', false, 'Il faut deux constantes : (E, ν), ou (λ, μ), ou (K, G).'],
+    ['Une traction selon x produit une contraction selon y et z.', true, 'ε<sub>yy</sub> = ε<sub>zz</sub> = −ν ε<sub>xx</sub> : effet de Poisson.'],
+    ['Si σ<sub>zz</sub> = 0, alors ε<sub>zz</sub> = 0.', false, 'En contraintes planes, ε<sub>zz</sub> = −ν(σ<sub>xx</sub> + σ<sub>yy</sub>)/E ≠ 0.'],
+    ['Un remblai routier très long se calcule en déformations planes.', true, 'ε<sub>zz</sub> = 0 le long de l\'axe ; il apparaît alors σ<sub>zz</sub> = ν(σ<sub>xx</sub> + σ<sub>yy</sub>).'],
+    ['Une barre libre chauffée de 30 °C se met en compression.', false, 'Elle se dilate librement sans contrainte. La contrainte −EαΔT n\'apparaît que si elle est bloquée.'],
+    ['En flexion pure, σ = My/I est une solution exacte de l\'élasticité.', true, 'Les sections planes restent planes, et toutes les équations sont vérifiées (Saint-Venant).'],
+    ['La contrainte σ<sub>z</sub> de Boussinesq sous une charge dépend du module E du sol.', false, 'Elle n\'en dépend pas (massif homogène) ; seuls les déplacements dépendent de E et ν.'],
+    ['Un petit trou dans une plaque en traction triple la contrainte sur son bord.', true, 'Facteur de concentration 3 (Kirsch), quel que soit le rayon du trou.'],
+    ['Pour un acier, la pression hydrostatique rapproche de la plastification.', false, 'Tresca et von Mises ne dépendent que du déviateur : la pression hydrostatique n\'a aucun effet.'],
+    ['Dans un sol, la facette de rupture de Mohr-Coulomb est celle de τ<sub>max</sub>.', false, 'Elle est inclinée de 45° + φ/2 sur la direction de σ<sub>3</sub>, pas de 45°.'],
+    ['Les fissures d\'effort tranchant d\'une poutre en béton sont perpendiculaires à σ<sub>1</sub>.', true, 'Le béton rompt en traction (Rankine) ; au voisinage de l\'axe neutre, σ<sub>1</sub> est à 45°, la fissure aussi.']
+  ];
+  const qb = document.getElementById('qcm-box');
+  let qscore = 0, qdone = 0;
+  const qs = document.createElement('p'); qs.className = 'score';
+  qcm.forEach((q, i) => {
+    const d = document.createElement('div'); d.className = 'exo';
+    d.innerHTML = '<div class="et"><span>' + (i + 1) + '. ' + q[0] + '</span></div><div class="row"><button data-v="1">Vrai</button><button data-v="0">Faux</button><span class="score"></span></div><div class="sol">' + q[2] + '</div>';
+    d.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      if (d.dataset.done) return; d.dataset.done = 1;
+      const ok = (b.dataset.v === '1') === q[1]; qdone++; if (ok) qscore++;
+      d.querySelector('.score').innerHTML = ok ? '<span style="color:var(--ok)">juste</span>' : '<span style="color:var(--ko)">faux — c\'est ' + (q[1] ? 'vrai' : 'faux') + '</span>';
+      d.querySelector('.sol').classList.add('open'); qs.textContent = 'Score : ' + qscore + ' / ' + qdone + (qdone === qcm.length ? ' — terminé' : '');
+    }));
+    qb.appendChild(d);
+  });
+  qb.appendChild(qs);
 
   // ---------- moteur ----------
   const root = document.getElementById('exos');

@@ -344,4 +344,78 @@
     ]);
   }
   bindAll(['s-c1', 's-c2', 's-ce', 's-m1', 's-m3', 's-mc', 's-mphi'], drawCrit);
+
+  // ===================== Banc 7 : Lamé =====================
+  const cv7 = document.getElementById('cv-lame');
+  function drawLame() {
+    const a = slider('s-la', 'l-la', 0), e = slider('s-le', 'l-le', 0), pa = slider('s-lpa', 'l-lpa', 1), pb = slider('s-lpb', 'l-lpb', 1), b = a + e;
+    const k = C(), { ctx, W, H } = setupCanvas(cv7, 720, 340);
+    ctx.clearRect(0, 0, W, H);
+    const A = (pa * a * a - pb * b * b) / (b * b - a * a), B = (pa - pb) * a * a * b * b / (b * b - a * a);
+    const sr = r => A - B / (r * r), st = r => A + B / (r * r);
+    const vals = []; for (let i = 0; i <= 60; i++) { const r = a + e * i / 60; vals.push([r, sr(r), st(r)]); }
+    const smax = Math.max(1e-6, ...vals.map(v => Math.max(Math.abs(v[1]), Math.abs(v[2]))));
+    // section (gauche)
+    const cx = W * 0.25, cy = H * 0.5, Rb = Math.min(W * 0.2, H * 0.42), Ra = Rb * a / b;
+    for (let i = 60; i >= 0; i--) { const r = a + e * i / 60, rp = Rb * r / b, v = st(r) / smax; ctx.fillStyle = v >= 0 ? 'rgba(14,116,144,' + (0.1 + 0.85 * v) + ')' : 'rgba(185,28,28,' + (0.1 + 0.85 * (-v)) + ')'; ctx.beginPath(); ctx.arc(cx, cy, rp, 0, 7); ctx.fill(); }
+    ctx.fillStyle = k.bg; ctx.beginPath(); ctx.arc(cx, cy, Ra, 0, 7); ctx.fill(); ctx.strokeStyle = k.ink; ctx.lineWidth = 1.5; ctx.stroke(); ctx.beginPath(); ctx.arc(cx, cy, Rb, 0, 7); ctx.stroke();
+    for (let i = 0; i < 8; i++) { const t = i * Math.PI / 4; if (pa > 0) arrow(ctx, cx + (Ra - 22) * Math.cos(t), cy + (Ra - 22) * Math.sin(t), cx + (Ra - 3) * Math.cos(t), cy + (Ra - 3) * Math.sin(t), k.acc, 2); if (pb > 0) arrow(ctx, cx + (Rb + 22) * Math.cos(t), cy + (Rb + 22) * Math.sin(t), cx + (Rb + 3) * Math.cos(t), cy + (Rb + 3) * Math.sin(t), k.ko, 2); }
+    text(ctx, 'σθ dans l\'épaisseur (bleu traction, rouge compression)', cx, cy + Rb + 24, k.ink2, 'center', 11);
+    // profils (droite)
+    const gx = W * 0.56, gy = H * 0.5, gw = W * 0.38, gh = H * 0.34;
+    ctx.strokeStyle = k.ink3; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx + gw, gy); ctx.moveTo(gx, gy + gh); ctx.lineTo(gx, gy - gh); ctx.stroke();
+    text(ctx, 'r = a', gx, gy + gh + 14, k.ink3, 'left', 10); text(ctx, 'r = b', gx + gw, gy + gh + 14, k.ink3, 'right', 10); text(ctx, 'MPa', gx + 4, gy - gh + 2, k.ink2, 'left', 10);
+    const Y = v => gy - gh * v / smax * 0.95;
+    [[1, k.ko, 'σr'], [2, k.sig, 'σθ']].forEach(([j, col, lab]) => { ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.beginPath(); vals.forEach((v, i) => { const x = gx + gw * (v[0] - a) / e; i ? ctx.lineTo(x, Y(v[j])) : ctx.moveTo(x, Y(v[j])); }); ctx.stroke(); text(ctx, lab + ' : ' + fmt(vals[0][j], 2) + ' → ' + fmt(vals[60][j], 2) + ' MPa', gx + gw - 2, Y(vals[60][j]) + (j === 1 ? 14 : -6), col, 'right', 11); });
+    if (pb === 0 && pa > 0) { const thin = pa * a / e; ctx.strokeStyle = k.ink3; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(gx, Y(thin)); ctx.lineTo(gx + gw, Y(thin)); ctx.stroke(); ctx.setLineDash([]); text(ctx, 'coque mince p·a/e = ' + fmt(thin, 2), gx + 4, Y(thin) - 5, k.ink3, 'left', 10); }
+    rows('o-lame', [
+      ['σ<sub>θ</sub>(a), σ<sub>θ</sub>(b)', fmt(st(a), 3) + ' ; ' + fmt(st(b), 3) + ' MPa'], ['σ<sub>r</sub>(a), σ<sub>r</sub>(b)', fmt(sr(a), 3) + ' ; ' + fmt(sr(b), 3) + ' MPa (= −p<sub>a</sub>, −p<sub>b</sub>)'],
+      ['σ<sub>r</sub> + σ<sub>θ</sub> = 2A partout', fmt(2 * A, 3) + ' MPa'], ['τ<sub>max</sub> (en r = a)', fmt((st(a) - sr(a)) / 2, 3) + ' MPa'],
+      ['b/a = ' + fmt(b / a, 2), b / a < 1.1 ? 'paroi mince : la coque mince suffit' : 'paroi épaisse : Lamé obligatoire, la coque mince sous-estime σθ(a) de ' + fmt(100 * (st(a) / (pa * a / e || 1) - 1), 0) + ' %']
+    ]);
+  }
+  bindAll(['s-la', 's-le', 's-lpa', 's-lpb'], drawLame);
+
+  // ===================== Banc 8 : torsion =====================
+  const cv8 = document.getElementById('cv-tor');
+  function drawTor() {
+    const M = slider('s-tm', 'l-tm', 0) * 1e6, d = slider('s-td', 'l-td', 0), di = Math.min(slider('s-tdi', 'l-tdi', 0), d - 20), G = slider('s-tg', 'l-tg', 0) * 1e3;
+    const k = C(), { ctx, W, H } = setupCanvas(cv8, 720, 320);
+    ctx.clearRect(0, 0, W, H);
+    const J = Math.PI * (d ** 4 - di ** 4) / 32, tmax = M * d / 2 / J, al = M / (G * J), L = 1000, phi = al * L;
+    // arbre 3D simplifié (gauche) : cylindre avec génératrices en hélices
+    const x0 = W * 0.06, x1 = W * 0.48, cy = H * 0.5, ry = Math.min(H * 0.3, 70), rx = ry * 0.35;
+    ctx.fillStyle = k.bg2; ctx.strokeStyle = k.ink2; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(x0, cy - ry); ctx.lineTo(x1, cy - ry); ctx.lineTo(x1, cy + ry); ctx.lineTo(x0, cy + ry); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(x1, cy, rx, ry, 0, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(x0, cy, rx, ry, 0, Math.PI / 2, 3 * Math.PI / 2); ctx.stroke();
+    const amp = Math.min(1.2, phi * 8); // angle de torsion visuel exagéré
+    for (let g = 0; g < 6; g++) { const t0 = g * Math.PI / 3; ctx.strokeStyle = k.sig; ctx.lineWidth = 1.5; ctx.beginPath(); for (let i = 0; i <= 40; i++) { const x = x0 + (x1 - x0) * i / 40, t = t0 + amp * i / 40; const y = cy + ry * Math.sin(t); if (Math.cos(t) < 0) { i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); } else { ctx.moveTo(x, y); } } ctx.stroke(); }
+    arrow(ctx, x1 + 10, cy - ry - 10, x1 + 10 + 40, cy - ry - 10, k.acc, 3); text(ctx, 'Mt', x1 + 55, cy - ry - 6, k.acc, 'left', 13);
+    text(ctx, 'génératrices → hélices ; rotation sur 1 m : ' + fmt(phi / deg, 2) + '° (dessin exagéré)', (x0 + x1) / 2, cy + ry + 24, k.ink2, 'center', 11);
+    // élément de peau et directions principales
+    const ex = (x0 + x1) / 2, ey = cy + ry * 0.0; const sq = 16;
+    ctx.save(); ctx.translate(ex, cy); ctx.strokeStyle = k.ko; ctx.lineWidth = 1.5; ctx.strokeRect(-sq, -sq, 2 * sq, 2 * sq);
+    arrow(ctx, -sq - 8, sq * 0.8, -sq - 8, -sq * 0.8, k.ko, 2); arrow(ctx, sq + 8, -sq * 0.8, sq + 8, sq * 0.8, k.ko, 2); arrow(ctx, -sq * 0.8, -sq - 8, sq * 0.8, -sq - 8, k.ko, 2); arrow(ctx, sq * 0.8, sq + 8, -sq * 0.8, sq + 8, k.ko, 2);
+    ctx.setLineDash([3, 3]); ctx.strokeStyle = k.eps; ctx.beginPath(); ctx.moveTo(-2 * sq, 2 * sq); ctx.lineTo(2 * sq, -2 * sq); ctx.moveTo(-2 * sq, -2 * sq); ctx.lineTo(2 * sq, 2 * sq); ctx.stroke(); ctx.setLineDash([]);
+    ctx.restore();
+    text(ctx, 'τ', ex + sq + 14, cy + 4, k.ko, 'left', 12); text(ctx, 'σ₁ / σ₂ à 45°', ex + 2 * sq + 4, cy - 2 * sq, k.eps, 'left', 11);
+    // profil τ(r) (droite)
+    const gx = W * 0.6, gy = H * 0.5, gw = W * 0.28, gh = H * 0.3;
+    ctx.strokeStyle = k.ink3; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, gy - gh); ctx.lineTo(gx, gy + gh); ctx.moveTo(gx, gy); ctx.lineTo(gx + gw, gy); ctx.stroke();
+    text(ctx, 'τ(r) = Mt r / J', gx + gw, gy - gh - 6, k.ink2, 'right', 12); text(ctx, 'r', gx + gw + 4, gy + 4, k.ink2);
+    ctx.fillStyle = 'rgba(185,28,28,.15)'; ctx.strokeStyle = k.ko; ctx.lineWidth = 2;
+    const X = r => gx + gw * (r / (d / 2)) * 0.95, Y = r => gy - gh * (r / (d / 2)) * 0.9;
+    ctx.beginPath(); ctx.moveTo(X(di / 2), gy); ctx.lineTo(X(di / 2), Y(di / 2)); ctx.lineTo(X(d / 2), Y(d / 2)); ctx.lineTo(X(d / 2), gy); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(di / 2), gy + 1); ctx.lineTo(X(di / 2), gy - gh * (di / d) * 0.9); ctx.lineTo(X(d / 2), gy - gh * 0.9); ctx.lineTo(X(d / 2), gy + 1); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(di / 2), gy - 1); ctx.lineTo(X(di / 2), gy + gh * (di / d) * 0.9); ctx.lineTo(X(d / 2), gy + gh * 0.9); ctx.lineTo(X(d / 2), gy - 1); ctx.closePath(); ctx.fill(); ctx.stroke();
+    text(ctx, 'τmax = ' + fmt(tmax, 1) + ' MPa', X(d / 2), Y(d / 2) - 8, k.ko, 'right', 11);
+    if (di > 0) text(ctx, 'd_i', X(di / 2), gy + 14, k.ink3, 'center', 10);
+    rows('o-tor', [
+      ['J = π(d⁴ − d<sub>i</sub>⁴)/32', fmt(J / 1e6, 3) + ' ×10⁶ mm⁴'], ['τ<sub>max</sub> sur la peau', fmt(tmax, 2) + ' MPa ; σ<sub>1</sub> = +τ, σ<sub>2</sub> = −τ à 45°'],
+      ['angle unitaire α = M<sub>t</sub>/(GJ)', fmt(al * 1e6, 3) + ' ×10⁻⁶ rad/mm → ' + fmt(phi / deg, 3) + ' ° par mètre'],
+      ['part du couple reprise par la couronne extérieure (r > (d + d<sub>i</sub>)/4)', fmt(100 * (d ** 4 - ((d + di) / 2) ** 4) / (d ** 4 - di ** 4), 0) + ' % — d\'où l\'intérêt du tube']
+    ]);
+  }
+  bindAll(['s-tm', 's-td', 's-tdi', 's-tg'], drawTor);
 })();

@@ -13,7 +13,7 @@
 <header class="top"></header>
 <main>
 <h1>Laboratoire digital</h1>
-<p class="lead">Six bancs d'essai. Chacun fait voir une idée du <a href="cours.html">cours</a> : on agit sur les curseurs, le dessin et les nombres suivent.</p>
+<p class="lead">Huit bancs d'essai. Chacun fait voir une idée du <a href="cours.html">cours</a> : on agit sur les curseurs, le dessin et les nombres suivent.</p>
 <div class="toc"><ol>
 <li><a href="#carre">Le carré qui se déforme</a> — gradient, déformation, rotation</li>
 <li><a href="#mohr">Cercle de Mohr</a> — tourner la facette</li>
@@ -21,6 +21,8 @@
 <li><a href="#boussinesq">Bulbe de Boussinesq</a> — charge en surface d'un massif</li>
 <li><a href="#kirsch">Trou de Kirsch</a> — concentration de contrainte</li>
 <li><a href="#criteres">Critères</a> — Tresca, von Mises, Rankine, Mohr-Coulomb</li>
+<li><a href="#lame">Tube épais de Lamé</a> — profils dans l'épaisseur</li>
+<li><a href="#torsion">Torsion</a> — cisaillement et hélices à 45°</li>
 </ol></div>
 
 <section class="lab" id="carre">
@@ -101,6 +103,32 @@
 </div>
 <canvas id="cv-crit" width="720" height="360"></canvas>
 <div class="out" id="o-crit"></div>
+</section>
+
+<section class="lab" id="lame">
+<p class="lt">Banc 7 · Tube épais de Lamé</p>
+<p>Un tube sous pression intérieure et extérieure. À gauche, la section avec les contraintes orthoradiales colorées ; à droite, les profils σ<sub>r</sub> et σ<sub>θ</sub> dans l'épaisseur, comparés à la formule de la coque mince.</p>
+<div class="grid">
+<label>a intérieur = <span id="l-la"></span> mm<input type="range" id="s-la" min="200" max="800" step="10" value="500"></label>
+<label>épaisseur e = <span id="l-le"></span> mm<input type="range" id="s-le" min="20" max="400" step="5" value="150"></label>
+<label>p<sub>a</sub> = <span id="l-lpa"></span> MPa<input type="range" id="s-lpa" min="0" max="5" step="0.1" value="2"></label>
+<label>p<sub>b</sub> = <span id="l-lpb"></span> MPa<input type="range" id="s-lpb" min="0" max="5" step="0.1" value="0"></label>
+</div>
+<canvas id="cv-lame" width="720" height="340"></canvas>
+<div class="out" id="o-lame"></div>
+</section>
+
+<section class="lab" id="torsion">
+<p class="lt">Banc 8 · Torsion d'un arbre circulaire</p>
+<p>Le couple fait tourner les sections les unes par rapport aux autres ; les génératrices deviennent des hélices. Le cisaillement est nul sur l'axe et maximal sur la peau. Les flèches à 45° sont les directions principales : c'est là que se fissure une craie ou un béton tordu.</p>
+<div class="grid">
+<label>M<sub>t</sub> = <span id="l-tm"></span> kN·m<input type="range" id="s-tm" min="0" max="60" step="1" value="20"></label>
+<label>d = <span id="l-td"></span> mm<input type="range" id="s-td" min="60" max="300" step="10" value="150"></label>
+<label>d<sub>i</sub> = <span id="l-tdi"></span> mm<input type="range" id="s-tdi" min="0" max="280" step="10" value="0"></label>
+<label>G = <span id="l-tg"></span> GPa<input type="range" id="s-tg" min="5" max="100" step="1" value="80"></label>
+</div>
+<canvas id="cv-tor" width="720" height="320"></canvas>
+<div class="out" id="o-tor"></div>
 </section>
 
 </main>
