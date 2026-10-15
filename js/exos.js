@@ -1,0 +1,176 @@
+/* MMC — exerciseur : exercices à données aléatoires */
+(function () {
+  'use strict';
+  const { fmt, rnd, pick, mohr2D, rotate2D, sym, eig, vonMises, constants, hookeStrain } = MMC;
+  const deg = Math.PI / 180;
+  MMC.nav('exerciseur.html');
+  const f = (x, d) => fmt(x, d);
+
+  const chapters = { 2: 'Déformations', 3: 'Contraintes', 4: 'Élasticité linéaire', 5: 'Solutions classiques', 6: 'Critères', 7: 'Vers la RDM' };
+
+  const exos = [
+    // ---------- ch2
+    { ch: 2, title: 'Gradient du déplacement → déformations', gen() {
+      const a = rnd(-20, 20) / 10, b = rnd(-20, 20) / 10, c = rnd(-20, 20) / 10, d = rnd(-20, 20) / 10;
+      const exy = (b + c) / 2, w = (b - c) / 2, m = mohr2D(a, d, exy);
+      return {
+        text: 'Au voisinage d\'un point, le gradient du déplacement vaut (×10⁻³) : ∂u<sub>x</sub>/∂x = ' + f(a, 1) + ', ∂u<sub>x</sub>/∂y = ' + f(b, 1) + ', ∂u<sub>y</sub>/∂x = ' + f(c, 1) + ', ∂u<sub>y</sub>/∂y = ' + f(d, 1) + '.',
+        answers: [['ε<sub>xy</sub> (×10⁻³)', exy], ['rotation ω<sub>xy</sub> (×10⁻³)', w], ['ε<sub>1</sub> (×10⁻³)', m.s1], ['ε<sub>2</sub> (×10⁻³)', m.s2], ['γ<sub>max</sub> (×10⁻³)', m.s1 - m.s2]],
+        sol: 'ε<sub>xy</sub> = ½(∂u<sub>x</sub>/∂y + ∂u<sub>y</sub>/∂x) = ½[(' + f(b, 1) + ') + (' + f(c, 1) + ')] = ' + f(exy, 2) + '. ω<sub>xy</sub> = ½[(' + f(b, 1) + ') − (' + f(c, 1) + ')] = ' + f(w, 2) + '. Centre (ε<sub>xx</sub>+ε<sub>yy</sub>)/2 = ' + f(m.c, 2) + ', rayon √[((ε<sub>xx</sub>−ε<sub>yy</sub>)/2)² + ε<sub>xy</sub>²] = ' + f(m.R, 3) + ' : ε<sub>1,2</sub> = ' + f(m.s1, 3) + ' ; ' + f(m.s2, 3) + '. γ<sub>max</sub> = ε<sub>1</sub> − ε<sub>2</sub> = 2R = ' + f(m.s1 - m.s2, 3) + '.'
+      };
+    } },
+    { ch: 2, title: 'Rosette à 45°', gen() {
+      const e0 = rnd(-800, 1200, 10), e45 = rnd(-600, 900, 10), e90 = rnd(-800, 800, 10);
+      const g = 2 * e45 - e0 - e90, m = mohr2D(e0, e90, g / 2);
+      return {
+        text: 'Une rosette rectangulaire collée sur une pièce donne ε<sub>0°</sub> = ' + e0 + ' µε, ε<sub>45°</sub> = ' + e45 + ' µε, ε<sub>90°</sub> = ' + e90 + ' µε.',
+        answers: [['γ<sub>xy</sub> (µrad)', g], ['ε<sub>1</sub> (µε)', m.s1], ['ε<sub>2</sub> (µε)', m.s2], ['angle de ε<sub>1</sub> depuis la jauge 0° (°)', m.theta / deg, 1.5]],
+        sol: 'ε(45°) = (ε<sub>xx</sub> + ε<sub>yy</sub>)/2 + γ<sub>xy</sub>/2, d\'où γ<sub>xy</sub> = 2ε<sub>45</sub> − ε<sub>0</sub> − ε<sub>90</sub> = ' + g + ' µrad. Puis cercle de Mohr des déformations avec ε<sub>xy</sub> = γ/2 = ' + f(g / 2, 0) + ' : centre ' + f(m.c, 0) + ', rayon ' + f(m.R, 0) + ' ; ε<sub>1,2</sub> = ' + f(m.s1, 0) + ' ; ' + f(m.s2, 0) + ' µε. tan 2θ = γ<sub>xy</sub>/(ε<sub>xx</sub> − ε<sub>yy</sub>) → θ = ' + f(m.theta / deg, 1) + '°.'
+      };
+    } },
+    // ---------- ch3
+    { ch: 3, title: 'Vecteur contrainte sur une facette', gen() {
+      const sx = rnd(-100, 150, 5), sy = rnd(-100, 100, 5), t = rnd(-60, 60, 5), th = pick([30, 45, 60, 120, 135]);
+      const r = rotate2D(sx, sy, t, th * deg);
+      return {
+        text: 'État plan σ<sub>xx</sub> = ' + sx + ' MPa, σ<sub>yy</sub> = ' + sy + ' MPa, σ<sub>xy</sub> = ' + t + ' MPa. Facette dont la normale fait ' + th + '° avec l\'axe x.',
+        answers: [['σ<sub>n</sub> (MPa)', r.sn], ['τ (MPa, convention cours)', r.tnt], ['σ<sub>n</sub> sur la facette à ' + (th + 90) + '° (MPa)', r.st]],
+        sol: 'σ<sub>n</sub> = (σ<sub>xx</sub>+σ<sub>yy</sub>)/2 + (σ<sub>xx</sub>−σ<sub>yy</sub>)/2 cos 2θ + σ<sub>xy</sub> sin 2θ = ' + f(r.sn, 2) + ' MPa ; τ = −(σ<sub>xx</sub>−σ<sub>yy</sub>)/2 sin 2θ + σ<sub>xy</sub> cos 2θ = ' + f(r.tnt, 2) + ' MPa. La facette perpendiculaire porte σ<sub>t</sub> = ' + f(r.st, 2) + ' MPa ; on vérifie σ<sub>n</sub> + σ<sub>t</sub> = σ<sub>xx</sub> + σ<sub>yy</sub> = ' + (sx + sy) + ' (invariant). Même calcul vectoriel : n = (cos θ, sin θ), T = σ·n, σ<sub>n</sub> = T·n.'
+      };
+    } },
+    { ch: 3, title: 'Contraintes principales et cercle de Mohr', gen() {
+      const sx = rnd(-120, 160, 5), sy = rnd(-120, 120, 5), t = rnd(-80, 80, 5), m = mohr2D(sx, sy, t);
+      return {
+        text: 'σ<sub>xx</sub> = ' + sx + ' MPa, σ<sub>yy</sub> = ' + sy + ' MPa, σ<sub>xy</sub> = ' + t + ' MPa (σ<sub>zz</sub> = 0, état plan).',
+        answers: [['σ<sub>1</sub> (MPa)', m.s1], ['σ<sub>2</sub> (MPa)', m.s2], ['θ<sub>1</sub> (°, direction de σ<sub>1</sub>)', m.theta / deg, 1.5], ['τ<sub>max</sub> dans le plan (MPa)', m.R], ['τ<sub>max</sub> absolu en 3D (MPa)', (Math.max(m.s1, 0) - Math.min(m.s2, 0)) / 2]],
+        sol: 'C = ' + f(m.c, 2) + ', R = √[((σ<sub>xx</sub>−σ<sub>yy</sub>)/2)² + σ<sub>xy</sub>²] = ' + f(m.R, 2) + ' MPa. σ<sub>1,2</sub> = C ± R = ' + f(m.s1, 2) + ' ; ' + f(m.s2, 2) + '. tan 2θ<sub>1</sub> = 2σ<sub>xy</sub>/(σ<sub>xx</sub>−σ<sub>yy</sub>) → θ<sub>1</sub> = ' + f(m.theta / deg, 1) + '°. τ<sub>max</sub> plan = R. En 3D la troisième contrainte principale est 0 : τ<sub>max</sub> = (σ<sub>max</sub> − σ<sub>min</sub>)/2 avec σ<sub>max</sub> = max(σ<sub>1</sub>, 0) et σ<sub>min</sub> = min(σ<sub>2</sub>, 0) — ce qui change le résultat quand σ<sub>1</sub> et σ<sub>2</sub> sont de même signe.'
+      };
+    } },
+    { ch: 3, title: 'Invariants, p et q d\'un tenseur 3D', gen() {
+      const s = sym(rnd(-80, 120, 10), rnd(-80, 80, 10), rnd(-60, 60, 10), rnd(-50, 50, 10), rnd(-40, 40, 10), rnd(-40, 40, 10));
+      const e = eig(s), p = (s[0] + s[1] + s[2]) / 3, q = vonMises(s);
+      return {
+        text: 'Tenseur (MPa) : σ<sub>xx</sub> = ' + s[0] + ', σ<sub>yy</sub> = ' + s[1] + ', σ<sub>zz</sub> = ' + s[2] + ', σ<sub>xy</sub> = ' + s[3] + ', σ<sub>yz</sub> = ' + s[4] + ', σ<sub>xz</sub> = ' + s[5] + '.',
+        answers: [['I<sub>1</sub> (MPa)', s[0] + s[1] + s[2]], ['p (MPa)', p], ['q (MPa)', q], ['σ<sub>1</sub> (MPa)', e.values[0]], ['σ<sub>3</sub> (MPa)', e.values[2]], ['τ<sub>max</sub> (MPa)', (e.values[0] - e.values[2]) / 2]],
+        sol: 'I<sub>1</sub> = trace = ' + (s[0] + s[1] + s[2]) + ' ; p = I<sub>1</sub>/3 = ' + f(p, 2) + '. Déviateur s = σ − p I, puis J<sub>2</sub> = ½ s:s et q = √(3J<sub>2</sub>) = ' + f(q, 2) + ' MPa. Les contraintes principales sont les racines de λ³ − I<sub>1</sub>λ² + I<sub>2</sub>λ − I<sub>3</sub> = 0 : ' + e.values.map(v => f(v, 2)).join(' ; ') + ' MPa (le calculateur du chapitre 3 les donne, ainsi que les directions). τ<sub>max</sub> = (σ<sub>1</sub> − σ<sub>3</sub>)/2.'
+      };
+    } },
+    // ---------- ch4
+    { ch: 4, title: 'Hooke généralisé', gen() {
+      const mat = pick(['acier', 'beton', 'alu']), M = MMC.materials[mat];
+      const s = sym(rnd(-60, 120, 5), rnd(-60, 60, 5), rnd(-40, 40, 5), rnd(-30, 30, 5), 0, 0);
+      const e = hookeStrain(s, M.E, M.nu);
+      return {
+        text: M.nom + ' (E = ' + M.E + ' MPa, ν = ' + M.nu + '). Contraintes (MPa) : σ<sub>xx</sub> = ' + s[0] + ', σ<sub>yy</sub> = ' + s[1] + ', σ<sub>zz</sub> = ' + s[2] + ', σ<sub>xy</sub> = ' + s[3] + '.',
+        answers: [['ε<sub>xx</sub> (µε)', e[0] * 1e6], ['ε<sub>yy</sub> (µε)', e[1] * 1e6], ['ε<sub>zz</sub> (µε)', e[2] * 1e6], ['γ<sub>xy</sub> (µrad)', 2 * e[3] * 1e6], ['ΔV/V (µ)', (e[0] + e[1] + e[2]) * 1e6]],
+        sol: 'ε<sub>xx</sub> = [σ<sub>xx</sub> − ν(σ<sub>yy</sub>+σ<sub>zz</sub>)]/E = [' + s[0] + ' − ' + M.nu + '×(' + (s[1] + s[2]) + ')]/' + M.E + ' = ' + f(e[0] * 1e6, 0) + ' µε, et de même pour yy, zz. G = E/2(1+ν) = ' + f(M.E / 2 / (1 + M.nu), 0) + ' MPa, γ<sub>xy</sub> = σ<sub>xy</sub>/G = ' + f(2 * e[3] * 1e6, 0) + ' µrad. ΔV/V = trace ε = (1−2ν) I<sub>1</sub>/E = ' + f((e[0] + e[1] + e[2]) * 1e6, 0) + ' µ.'
+      };
+    } },
+    { ch: 4, title: 'Constantes élastiques', gen() {
+      const E = pick([20000, 30000, 35000, 70000, 200000, 210000]), nu = pick([0.15, 0.2, 0.25, 0.3, 0.33]), c = constants({ E, nu });
+      return {
+        text: 'Matériau isotrope : E = ' + E + ' MPa, ν = ' + nu + '.',
+        answers: [['G (MPa)', c.G], ['K (MPa)', c.K], ['λ (MPa)', c.lambda], ['module œdométrique K + 4G/3 (MPa)', c.M]],
+        sol: 'G = E/[2(1+ν)] = ' + f(c.G, 0) + ' ; K = E/[3(1−2ν)] = ' + f(c.K, 0) + ' ; λ = Eν/[(1+ν)(1−2ν)] = ' + f(c.lambda, 0) + ' ; module de déformation en compression empêchée latéralement (œdomètre, ou déformations planes sous une charge uniforme) λ + 2G = K + 4G/3 = ' + f(c.M, 0) + ' MPa.'
+      };
+    } },
+    { ch: 4, title: 'Déformations planes : la contrainte cachée', gen() {
+      const nu = pick([0.2, 0.25, 0.3, 0.35]), E = pick([30, 50, 100, 7000, 33000]), sx = rnd(-300, -50, 10), sy = rnd(-200, -20, 10);
+      const sz = nu * (sx + sy), exx = ((1 + nu) * sx - nu * (sx + sy + sz)) / E, eyy = ((1 + nu) * sy - nu * (sx + sy + sz)) / E;
+      return {
+        text: 'Ouvrage long (déformations planes, ε<sub>zz</sub> = 0) : E = ' + E + ' MPa, ν = ' + nu + ', σ<sub>xx</sub> = ' + sx + ' MPa, σ<sub>yy</sub> = ' + sy + ' MPa (compressions négatives).',
+        answers: [['σ<sub>zz</sub> (MPa)', sz], ['ε<sub>xx</sub> (µε)', exx * 1e6], ['ε<sub>yy</sub> (µε)', eyy * 1e6]],
+        sol: 'ε<sub>zz</sub> = [σ<sub>zz</sub> − ν(σ<sub>xx</sub>+σ<sub>yy</sub>)]/E = 0 ⇒ σ<sub>zz</sub> = ν(σ<sub>xx</sub>+σ<sub>yy</sub>) = ' + f(sz, 2) + ' MPa. Puis ε<sub>xx</sub> = [σ<sub>xx</sub> − ν(σ<sub>yy</sub>+σ<sub>zz</sub>)]/E = ' + f(exx * 1e6, 0) + ' µε, ε<sub>yy</sub> = ' + f(eyy * 1e6, 0) + ' µε. Équivalent : loi plane avec E\' = E/(1−ν²) et ν\' = ν/(1−ν).'
+      };
+    } },
+    // ---------- ch5
+    { ch: 5, title: 'Flexion pure', gen() {
+      const b = pick([200, 250, 300, 400]), h = pick([400, 500, 600, 800]), M = rnd(50, 400, 10), E = pick([30000, 33000, 35000]);
+      const I = b * h ** 3 / 12, s = M * 1e6 * h / 2 / I, k = M * 1e6 / (E * I);
+      return {
+        text: 'Poutre rectangulaire b = ' + b + ' mm, h = ' + h + ' mm, E = ' + E + ' MPa, moment M = ' + M + ' kN·m.',
+        answers: [['I (×10⁸ mm⁴)', I / 1e8], ['σ<sub>max</sub> (MPa)', s], ['courbure (10⁻³ /m)', k * 1e6], ['ε<sub>max</sub> (µε)', s / E * 1e6]],
+        sol: 'I = bh³/12 = ' + f(I / 1e8, 3) + ' ×10⁸ mm⁴. σ<sub>max</sub> = M(h/2)/I = ' + M + '×10⁶ × ' + h / 2 + ' / ' + f(I, 0) + ' = ' + f(s, 2) + ' MPa. κ = M/(EI) = ' + f(k * 1e6, 3) + ' ×10⁻³ /m, soit R = ' + f(1 / k / 1e3, 0) + ' m. ε<sub>max</sub> = σ<sub>max</sub>/E = κ h/2 = ' + f(s / E * 1e6, 0) + ' µε. La solution est exacte : chaque section reste plane, σ<sub>xx</sub> est la seule contrainte.'
+      };
+    } },
+    { ch: 5, title: 'Tube épais de Lamé', gen() {
+      const a = pick([400, 500, 600, 800]), e = pick([80, 100, 150, 200]), b = a + e, pa = pick([1, 1.5, 2, 3, 4]);
+      const A = pa * a * a / (b * b - a * a), B = pa * a * a * b * b / (b * b - a * a), stA = A + B / (a * a), stB = A + B / (b * b);
+      return {
+        text: 'Conduite en béton : rayon intérieur a = ' + a + ' mm, épaisseur e = ' + e + ' mm, pression intérieure p<sub>a</sub> = ' + pa + ' MPa, pression extérieure nulle.',
+        answers: [['σ<sub>θ</sub> en r = a (MPa)', stA], ['σ<sub>θ</sub> en r = b (MPa)', stB], ['σ<sub>r</sub> en r = a (MPa)', -pa], ['coque mince p·a/e (MPa)', pa * a / e]],
+        sol: 'A = p<sub>a</sub>a²/(b²−a²) = ' + f(A, 3) + ', B = p<sub>a</sub>a²b²/(b²−a²). σ<sub>θ</sub>(a) = A + B/a² = p<sub>a</sub>(b²+a²)/(b²−a²) = ' + f(stA, 3) + ' MPa ; σ<sub>θ</sub>(b) = 2A = ' + f(stB, 3) + ' MPa ; σ<sub>r</sub>(a) = −p<sub>a</sub>. La formule de la coque mince, ' + f(pa * a / e, 3) + ' MPa, sous-estime la contrainte intérieure de ' + f(100 * (stA / (pa * a / e) - 1), 1) + ' %.'
+      };
+    } },
+    { ch: 5, title: 'Boussinesq sous une plaque circulaire', gen() {
+      const a = pick([0.5, 0.75, 1, 1.5, 2]), q = rnd(100, 400, 10), z = pick([0.5, 1, 1.5, 2, 3]), E = pick([10, 20, 30, 50]), nu = pick([0.3, 0.35, 0.4]);
+      const sz = q * (1 - z ** 3 / (a * a + z * z) ** 1.5), s0 = 2 * (1 - nu * nu) * q * a / (E * 1e3);
+      return {
+        text: 'Plaque circulaire souple de rayon a = ' + a + ' m, pression q = ' + q + ' kPa, sur un massif E = ' + E + ' MPa, ν = ' + nu + '.',
+        answers: [['σ<sub>z</sub> sous le centre à z = ' + z + ' m (kPa)', sz], ['σ<sub>z</sub>/q (%)', 100 * sz / q], ['tassement au centre (mm)', s0 * 1000]],
+        sol: 'σ<sub>z</sub> = q[1 − z³/(a²+z²)<sup>3/2</sup>] = ' + q + ' × [1 − ' + f(z ** 3, 3) + '/' + f((a * a + z * z) ** 1.5, 3) + '] = ' + f(sz, 1) + ' kPa, soit ' + f(100 * sz / q, 1) + ' % de q. s<sub>0</sub> = 2(1−ν²)qa/E = 2 × ' + f(1 - nu * nu, 4) + ' × ' + q + ' × ' + a + ' / ' + E * 1e3 + ' = ' + f(s0 * 1000, 1) + ' mm. La contrainte ne dépend pas de E ; le tassement, si.'
+      };
+    } },
+    // ---------- ch6
+    { ch: 6, title: 'Tresca et von Mises en contraintes planes', gen() {
+      const s = rnd(-200, 300, 10), t = rnd(20, 180, 10), fy = pick([235, 275, 355, 460]);
+      const m = mohr2D(s, 0, t), s1 = m.s1, s2 = m.s2, tr = Math.max(s1, 0) - Math.min(s2, 0), vm = Math.sqrt(s * s + 3 * t * t);
+      return {
+        text: 'Âme d\'un profilé en acier S' + fy + ' : σ<sub>xx</sub> = ' + s + ' MPa, τ<sub>xy</sub> = ' + t + ' MPa, autres composantes nulles.',
+        answers: [['σ<sub>1</sub> (MPa)', s1], ['σ<sub>2</sub> (MPa)', s2], ['Tresca : σ<sub>max</sub> − σ<sub>min</sub> (MPa)', tr], ['von Mises : √(σ² + 3τ²) (MPa)', vm], ['marge von Mises f<sub>y</sub>/σ<sub>eq</sub>', fy / vm]],
+        sol: 'σ<sub>1,2</sub> = σ/2 ± √(σ²/4 + τ²) = ' + f(s1, 1) + ' ; ' + f(s2, 1) + ' MPa, troisième principale nulle. Tresca compare la plus grande différence des trois principales (' + f(s1, 1) + ', ' + f(s2, 1) + ', 0) à f<sub>y</sub> : ' + f(tr, 1) + ' MPa. von Mises : q = √(σ² + 3τ²) = ' + f(vm, 1) + ' MPa (formule de l\'EC3 en contraintes planes). Marge = ' + f(fy / vm, 2) + (fy / vm >= 1 ? ' : élastique.' : ' : plastifié.')
+      };
+    } },
+    { ch: 6, title: 'Mohr-Coulomb : rupture d\'un sol', gen() {
+      const c = pick([0, 5, 10, 20, 30]), phi = pick([20, 25, 30, 35]), s3 = rnd(50, 300, 10), p = phi * deg;
+      const s1f = s3 * (1 + Math.sin(p)) / (1 - Math.sin(p)) + 2 * c * Math.cos(p) / (1 - Math.sin(p));
+      return {
+        text: 'Sol c\' = ' + c + ' kPa, φ\' = ' + phi + '°. Essai triaxial drainé sous σ\'<sub>3</sub> = ' + s3 + ' kPa.',
+        answers: [['σ\'<sub>1</sub> à la rupture (kPa)', s1f], ['déviateur q = σ\'<sub>1</sub> − σ\'<sub>3</sub> (kPa)', s1f - s3], ['inclinaison du plan de rupture sur σ\'<sub>3</sub> (°)', 45 + phi / 2, 1], ['τ<sub>max</sub> au moment de la rupture (kPa)', (s1f - s3) / 2]],
+        sol: 'σ\'<sub>1</sub> = σ\'<sub>3</sub> K<sub>p</sub> + 2c\'√K<sub>p</sub> avec K<sub>p</sub> = (1+sin φ)/(1−sin φ) = ' + f((1 + Math.sin(p)) / (1 - Math.sin(p)), 3) + ' : σ\'<sub>1</sub> = ' + f(s1f, 1) + ' kPa. Plan de rupture à 45° + φ/2 = ' + (45 + phi / 2) + '° de la direction de σ\'<sub>3</sub> (il ne porte pas τ<sub>max</sub>, qui vaut ' + f((s1f - s3) / 2, 1) + ' kPa sur la facette à 45°). Avec φ = 0 on retrouverait Tresca : q = 2c<sub>u</sub>.'
+      };
+    } },
+    // ---------- ch7
+    { ch: 7, title: 'Du torseur aux contraintes principales', gen() {
+      const b = pick([250, 300, 400]), h = pick([500, 600, 800]), M = rnd(50, 250, 10), T = rnd(100, 500, 10), y = pick([0, 0.25, 0.5]) * h / 2, fct = pick([2.2, 2.6, 2.9]);
+      const I = b * h ** 3 / 12, s = -M * 1e6 * y / I, Q = b * (h / 2 - y) * ((h / 2 + y) / 2), t = T * 1e3 * Q / (I * b), m = mohr2D(s, 0, t);
+      return {
+        text: 'Poutre béton b = ' + b + ' mm, h = ' + h + ' mm, M = ' + M + ' kN·m, T = ' + T + ' kN. Point situé à y = ' + y + ' mm au-dessus de l\'axe neutre (côté comprimé). f<sub>ct</sub> = ' + fct + ' MPa.',
+        answers: [['σ<sub>xx</sub> = −My/I (MPa)', s, 0.03], ['τ<sub>xy</sub> = TQ/(Ib) (MPa)', t], ['σ<sub>1</sub> (MPa)', m.s1], ['angle de σ<sub>1</sub> sur l\'axe (°)', m.theta / deg, 1.5]],
+        sol: 'I = ' + f(I / 1e8, 3) + ' ×10⁸ mm⁴ ; σ<sub>xx</sub> = −' + M + '×10⁶ × ' + y + ' / I = ' + f(s, 3) + ' MPa. Moment statique de la partie au-dessus de y : Q = b(h/2 − y)(h/2 + y)/2 = ' + f(Q / 1e6, 3) + ' ×10⁶ mm³ ; τ = TQ/(Ib) = ' + f(t, 3) + ' MPa. Cercle de Mohr de (σ, 0, τ) : σ<sub>1</sub> = ' + f(m.s1, 3) + ' MPa' + (m.s1 > fct ? ' > f<sub>ct</sub> : fissuration' : ' ≤ f<sub>ct</sub> : pas de fissure') + ', inclinée de ' + f(m.theta / deg, 1) + '° sur l\'axe ; la fissure lui est perpendiculaire. Sur l\'axe neutre (y = 0) σ = 0 et les fissures d\'effort tranchant partent à 45°.'
+      };
+    } }
+  ];
+
+  // ---------- moteur ----------
+  const root = document.getElementById('exos');
+  let lastCh = 0;
+  exos.forEach((ex, i) => {
+    if (ex.ch !== lastCh) { lastCh = ex.ch; const h = document.createElement('h2'); h.id = 'ch' + ex.ch; h.textContent = ex.ch + ' · ' + chapters[ex.ch]; root.appendChild(h); }
+    const box = document.createElement('div'); box.className = 'exo'; box.id = 'exo' + i; root.appendChild(box);
+    render(box, ex, i);
+  });
+  function render(box, ex, i) {
+    const d = ex.gen();
+    box.dataset.answers = JSON.stringify(d.answers.map(a => [a[1], a[2] || 0.02]));
+    box.innerHTML = '<div class="et"><span>' + (i + 1) + '. ' + ex.title + '</span><span class="chip">chapitre ' + ex.ch + '</span></div>' +
+      '<p>' + d.text + '</p><div class="ans">' + d.answers.map((a, j) => '<label>' + a[0] + '<input inputmode="decimal" data-i="' + j + '"></label>').join('') + '</div>' +
+      '<div class="row"><button class="primary" data-act="check">Vérifier</button><button data-act="sol">Solution</button><button data-act="new">Nouvelles données</button><span class="score"></span></div>' +
+      '<div class="sol">' + d.sol + '</div>';
+    box.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+      const act = b.dataset.act;
+      if (act === 'new') { render(box, ex, i); return; }
+      if (act === 'sol') { box.querySelector('.sol').classList.toggle('open'); return; }
+      const ans = JSON.parse(box.dataset.answers); let ok = 0;
+      box.querySelectorAll('.ans input').forEach(inp => {
+        const j = +inp.dataset.i, v = parseFloat(String(inp.value).replace(',', '.').replace('−', '-'));
+        const [ref, tol] = ans[j];
+        const absTol = tol > 0.1 ? tol : Math.max(Math.abs(ref) * tol, 0.02);
+        const good = isFinite(v) && Math.abs(v - ref) <= absTol;
+        inp.classList.remove('ok', 'ko'); inp.classList.add(good ? 'ok' : 'ko'); if (good) ok++;
+      });
+      box.querySelector('.score').textContent = ok + ' / ' + ans.length + (ok === ans.length ? ' — tout juste' : '');
+    }));
+  }
+  if (location.hash) { const el = document.querySelector(location.hash); if (el) el.scrollIntoView(); }
+})();

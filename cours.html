@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Cours de mécanique des milieux continus pour le génie civil : déformations, contraintes, élasticité, critères, passage vers la RDM">
+<meta name="theme-color" content="#7c2d12">
+<title>Cours — Mécanique des milieux continus</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+</head>
+<body>
+<header class="top"></header>
+<main>
+
+<h1>Mécanique des milieux continus</h1>
+<p class="lead">Le cours au fil du texte, chapitre par chapitre, avec ses calculateurs. Chaque section dit ce qu'il faut savoir, pas davantage ; les bancs d'essai du <a href="labo.html">laboratoire</a> font voir, l'<a href="exerciseur.html">exerciseur</a> fait faire.</p>
+
+<div class="toc"><details><summary>§ Sommaire</summary>
+<ol>
+<li><a href="#ch1">Le milieu continu</a></li>
+<li><a href="#ch2">Déformations</a></li>
+<li><a href="#ch3">Contraintes</a></li>
+<li><a href="#ch4">Loi de comportement : élasticité linéaire</a></li>
+<li><a href="#ch5">Le problème d'élasticité et ses solutions classiques</a></li>
+<li><a href="#ch6">Limite élastique et critères</a></li>
+<li><a href="#ch7">De la MMC à la RDM</a></li>
+</ol></details></div>
+
+<h2 id="ch0">Avant de commencer</h2>
+<p>La MMC décrit un solide (ou un sol, ou un fluide) comme une matière continue, sans grains ni atomes, dans laquelle on peut définir en chaque point une <b>déformation</b> et une <b>contrainte</b>. Ces deux grandeurs ne sont pas des nombres mais des <b>tenseurs symétriques 3×3</b> : six composantes, trois valeurs principales, trois directions principales. Tout le cours tourne autour de ces deux objets et de la loi qui les relie.</p>
+<div class="box"><b class="t">Notations</b>
+Axes \(x, y, z\) (ou \(1,2,3\)). Vecteur \(\vec u = (u_x,u_y,u_z)\). Tenseur symétrique \(\boldsymbol\sigma\) de composantes \(\sigma_{ij}=\sigma_{ji}\). Unités : contraintes en Pa (MPa en pratique, kPa pour les sols), déformations sans dimension (souvent en <i>microdéformations</i>, 1 µε = 10⁻⁶). Le cours reste en <b>petites perturbations</b> : déplacements et déformations petits devant les dimensions du solide — c'est le cadre de presque tout le génie civil.</div>
+
+<h2 id="ch1">1 · Le milieu continu</h2>
+<h3>Une matière sans grains</h3>
+<p>Un béton est fait de granulats, d'une pâte et de vides ; un sol, de grains et d'eau ; un acier, de cristaux. La MMC fait abstraction de cette structure : elle regarde la matière à une échelle où un petit volume contient assez de grains pour que ses propriétés moyennes soient stables. Ce volume est le <b>volume élémentaire représentatif</b> (VER). Au-dessus de lui, la matière se comporte comme un continu ; en dessous, la notion de contrainte perd son sens.</p>
+<div class="tw"><table><tr><th>Matériau</th><th>Hétérogénéité</th><th>VER (ordre de grandeur)</th></tr>
+<tr><td>Acier</td><td>grain cristallin 10–100 µm</td><td>1 mm</td></tr>
+<tr><td>Béton</td><td>granulat 20 mm</td><td>10–15 cm (3 à 5 fois le plus gros granulat)</td></tr>
+<tr><td>Sable, grave</td><td>grain 1–50 mm</td><td>quelques décimètres</td></tr>
+<tr><td>Enrobé bitumineux</td><td>granulat 10–14 mm</td><td>5–10 cm</td></tr>
+<tr><td>Massif rocheux</td><td>fracturation métrique</td><td>plusieurs mètres — parfois jamais atteint</td></tr></table></div>
+<p>D'où une règle de lecture : une éprouvette de béton de 16 cm, une plaque de 60 cm sur une grave, un sondage dans un massif fracturé mesurent des propriétés <i>continues</i> seulement si leur dimension dépasse le VER.</p>
+<h3>Particule, configuration, champs</h3>
+<p>Le solide occupe une <b>configuration initiale</b> \(\Omega_0\) (non chargée) et une <b>configuration actuelle</b> \(\Omega\) (chargée). La « particule » est le point matériel qui passe de la position \(\vec X\) à la position \(\vec x\). Le <b>déplacement</b> est la différence :</p>
+<div class="formula">\[\vec u(\vec X) = \vec x - \vec X\]</div>
+<p>Décrire le mouvement en suivant chaque particule depuis \(\vec X\) est la description <b>lagrangienne</b> ; décrire ce qui se passe en un point fixe \(\vec x\) de l'espace est la description <b>eulérienne</b>. Pour les solides du génie civil, on suit la matière : tout ce cours est lagrangien. L'hydraulique, elle, est eulérienne — on regarde le débit qui traverse une section fixe.</p>
+<p>Déplacement, déformation, contrainte, température sont des <b>champs</b> : une valeur par point. Un champ scalaire (température), vectoriel (déplacement) ou tensoriel (déformation, contrainte).</p>
+<div class="box key"><b class="t">À retenir</b>
+La MMC vaut à l'échelle du VER et au-dessus. On suit la matière (Lagrange) et l'on décrit en chaque point un déplacement (vecteur), une déformation et une contrainte (tenseurs).</div>
+
+<h2 id="ch2">2 · Déformations</h2>
+<h3>Du déplacement à la déformation</h3>
+<p>Un déplacement uniforme (translation) ou une rotation d'ensemble ne déforment pas le solide. Ce qui le déforme, c'est que les déplacements <i>varient</i> d'un point à l'autre : la déformation est contenue dans le <b>gradient du déplacement</b>, la matrice des \(\partial u_i/\partial x_j\). Ce gradient se partage en une partie symétrique, la <b>déformation</b>, et une partie antisymétrique, la <b>rotation</b> :</p>
+<div class="formula">\[\varepsilon_{ij} = \frac12\left(\frac{\partial u_i}{\partial x_j}+\frac{\partial u_j}{\partial x_i}\right) \qquad \omega_{ij} = \frac12\left(\frac{\partial u_i}{\partial x_j}-\frac{\partial u_j}{\partial x_i}\right)\]<span class="ref">petites perturbations</span></div>
+<p>En deux dimensions, le tenseur des déformations s'écrit avec trois composantes dont le sens physique est immédiat :</p>
+<div class="formula">\[\varepsilon_{xx}=\frac{\partial u_x}{\partial x},\qquad \varepsilon_{yy}=\frac{\partial u_y}{\partial y},\qquad \varepsilon_{xy}=\frac12\left(\frac{\partial u_x}{\partial y}+\frac{\partial u_y}{\partial x}\right)=\frac{\gamma_{xy}}{2}\]</div>
+<ul>
+<li>\(\varepsilon_{xx}\) : <b>allongement relatif</b> d'un segment porté par \(x\) — \(\Delta L/L\). Positif en traction.</li>
+<li>\(\gamma_{xy}=2\varepsilon_{xy}\) : <b>distorsion</b>, la diminution de l'angle droit entre deux segments portés par \(x\) et \(y\) (en radians). C'est le \(\gamma\) des ingénieurs ; le tenseur, lui, contient sa moitié.</li>
+<li>\(\theta = \varepsilon_{xx}+\varepsilon_{yy}+\varepsilon_{zz} = \mathrm{tr}\,\boldsymbol\varepsilon\) : <b>dilatation volumique</b>, \(\Delta V/V\).</li>
+</ul>
+<figure><svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" font-family="system-ui" font-size="13">
+<g fill="none" stroke="var(--ink-3)" stroke-dasharray="4 3"><rect x="40" y="60" width="100" height="100"/><rect x="250" y="60" width="100" height="100"/><rect x="460" y="60" width="100" height="100"/></g>
+<g fill="none" stroke="var(--eps)" stroke-width="2"><rect x="40" y="60" width="130" height="100"/><rect x="250" y="40" width="100" height="120"/><polygon points="460,160 560,160 585,60 485,60"/></g>
+<g fill="var(--ink-2)" text-anchor="middle"><text x="105" y="190">ε<tspan font-size="9" dy="3">xx</tspan><tspan dy="-3"> = 0,3</tspan></text><text x="300" y="190">ε<tspan font-size="9" dy="3">yy</tspan><tspan dy="-3"> = 0,2</tspan></text><text x="520" y="190">γ<tspan font-size="9" dy="3">xy</tspan><tspan dy="-3"> = 0,25 rad</tspan></text>
+<text x="105" y="30">allongement</text><text x="300" y="30">allongement</text><text x="520" y="30">distorsion</text></g>
+<path d="M460 160 l20 -40" stroke="var(--ko)" fill="none"/><path d="M460 160 v-40" stroke="var(--ink-3)" fill="none" stroke-dasharray="3 2"/><text x="478" y="150" fill="var(--ko)" font-size="12">γ</text>
+</svg><figcaption>Les trois composantes planes de la déformation. Le carré en pointillés est la forme initiale. Déformations très exagérées : en pratique elles valent 10⁻⁴ à 10⁻³.</figcaption></figure>
+
+<div class="calc" id="c-grad"><p class="ct">Du gradient du déplacement au tenseur des déformations (2D)</p>
+<div class="grid">
+<label>∂u<sub>x</sub>/∂x (×10⁻³)<input id="g-uxx" value="1.2"></label>
+<label>∂u<sub>x</sub>/∂y (×10⁻³)<input id="g-uxy" value="0.8"></label>
+<label>∂u<sub>y</sub>/∂x (×10⁻³)<input id="g-uyx" value="-0.2"></label>
+<label>∂u<sub>y</sub>/∂y (×10⁻³)<input id="g-uyy" value="-0.4"></label>
+</div><div class="out" id="g-out"></div>
+<p class="muted">Le <a href="labo.html#carre">banc « le carré qui se déforme »</a> anime ce calcul.</p></div>
+
+<h3>Déformations principales</h3>
+<p>En tout point, il existe trois directions perpendiculaires le long desquelles le solide s'allonge ou se raccourcit <i>sans distorsion</i> : les <b>directions principales</b>. Les allongements correspondants sont les <b>déformations principales</b> \(\varepsilon_1 \ge \varepsilon_2 \ge \varepsilon_3\), valeurs propres du tenseur. En 2D :</p>
+<div class="formula">\[\varepsilon_{1,2} = \frac{\varepsilon_{xx}+\varepsilon_{yy}}{2} \pm \sqrt{\left(\frac{\varepsilon_{xx}-\varepsilon_{yy}}{2}\right)^2+\varepsilon_{xy}^2},\qquad \tan 2\theta_1 = \frac{2\varepsilon_{xy}}{\varepsilon_{xx}-\varepsilon_{yy}}\]</div>
+<p>La distorsion maximale vaut \(\gamma_{max} = \varepsilon_1-\varepsilon_3\), sur les facettes à 45° des directions principales. Cette structure — valeurs propres, directions à 45°, cercle de Mohr — est exactement celle des contraintes : on la détaillera au chapitre 3 et elle vaut pour les deux tenseurs.</p>
+
+<h3>Mesurer une déformation : la rosette</h3>
+<p>Une jauge mesure l'allongement relatif dans sa direction : \(\varepsilon(\alpha)=\varepsilon_{xx}\cos^2\alpha+\varepsilon_{yy}\sin^2\alpha+\gamma_{xy}\sin\alpha\cos\alpha\). Trois jauges à 0°, 45°, 90° (rosette rectangulaire) donnent les trois composantes :</p>
+<div class="formula">\[\varepsilon_{xx}=\varepsilon_0,\qquad \varepsilon_{yy}=\varepsilon_{90},\qquad \gamma_{xy}=2\varepsilon_{45}-\varepsilon_0-\varepsilon_{90}\]</div>
+<div class="calc" id="c-ros"><p class="ct">Rosette 0° / 45° / 90° → tenseur et déformations principales</p>
+<div class="grid">
+<label>ε<sub>0°</sub> (µε)<input id="r-e0" value="820"></label>
+<label>ε<sub>45°</sub> (µε)<input id="r-e45" value="310"></label>
+<label>ε<sub>90°</sub> (µε)<input id="r-e90" value="-240"></label>
+</div><div class="out" id="r-out"></div></div>
+
+<h3>Compatibilité</h3>
+<p>Trois déplacements donnent six déformations : on ne peut pas choisir les six librement, il faut qu'elles dérivent d'un champ \(\vec u\) continu. En 2D, cela s'écrit en une équation :</p>
+<div class="formula">\[\frac{\partial^2\varepsilon_{xx}}{\partial y^2}+\frac{\partial^2\varepsilon_{yy}}{\partial x^2} = 2\,\frac{\partial^2\varepsilon_{xy}}{\partial x\,\partial y}\]</div>
+<p>Un champ de déformation uniforme ou linéaire la vérifie toujours. Elle importe quand on part des déformations (mesures, photogrammétrie) pour remonter aux déplacements.</p>
+<div class="box key"><b class="t">À retenir</b>
+\(\boldsymbol\varepsilon\) est la partie symétrique du gradient de \(\vec u\). Diagonale : allongements ; hors diagonale : moitié des distorsions ; trace : variation de volume. Trois directions principales sans distorsion, distorsion maximale à 45°.</div>
+<div class="chap-links"><a class="btn" href="exerciseur.html#ch2">Exercices du chapitre</a><a class="btn" href="labo.html#carre">Banc : le carré qui se déforme</a></div>
+
+<h2 id="ch3">3 · Contraintes</h2>
+<h3>Le vecteur contrainte</h3>
+<p>Coupons le solide par une facette d'aire \(dS\) et de normale unitaire \(\vec n\). La matière située du côté de \(\vec n\) exerce sur l'autre côté une force \(d\vec F\). Le <b>vecteur contrainte</b> est la force par unité d'aire :</p>
+<div class="formula">\[\vec T(\vec n) = \frac{d\vec F}{dS} = \sigma_n\,\vec n + \vec\tau\]</div>
+<p>Sa composante normale \(\sigma_n\) est la <b>contrainte normale</b> (traction si positive, compression si négative — convention de la mécanique ; la géotechnique prend l'inverse). Sa composante dans le plan de la facette est la <b>contrainte tangentielle</b> ou de cisaillement \(\tau\).</p>
+<h3>Le tenseur des contraintes</h3>
+<p>Le vecteur contrainte dépend de la facette. Cauchy a montré qu'il dépend d'elle <i>linéairement</i> : connaître \(\vec T\) sur les trois facettes perpendiculaires aux axes suffit à le connaître sur toute facette. Les neuf composantes rangées en matrice forment le <b>tenseur des contraintes</b> :</p>
+<div class="formula">\[\vec T(\vec n) = \boldsymbol\sigma\cdot\vec n,\qquad \boldsymbol\sigma = \begin{pmatrix}\sigma_{xx}&\sigma_{xy}&\sigma_{xz}\\ \sigma_{xy}&\sigma_{yy}&\sigma_{yz}\\ \sigma_{xz}&\sigma_{yz}&\sigma_{zz}\end{pmatrix}\]<span class="ref">\(\sigma_{ij}\) : composante selon \(i\) de la contrainte sur la facette de normale \(j\)</span></div>
+<p>L'équilibre des moments d'un petit cube impose \(\sigma_{ij}=\sigma_{ji}\) : le tenseur est <b>symétrique</b>, six composantes indépendantes. Sur la facette de normale \(\vec n\) :</p>
+<div class="formula">\[\sigma_n = \vec n\cdot\boldsymbol\sigma\cdot\vec n,\qquad \tau = \sqrt{|\vec T|^2-\sigma_n^2}\]</div>
+<figure><svg viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg" font-family="system-ui" font-size="13">
+<g transform="translate(60,30)">
+<polygon points="40,150 160,150 160,60 40,60" fill="var(--bg-2)" stroke="var(--ink-2)"/>
+<polygon points="40,60 80,20 200,20 160,60" fill="var(--bg-2)" stroke="var(--ink-2)"/>
+<polygon points="160,60 200,20 200,110 160,150" fill="var(--bg-2)" stroke="var(--ink-2)"/>
+<g stroke="var(--sig)" stroke-width="2" fill="var(--sig)">
+<line x1="160" y1="105" x2="215" y2="105"/><polygon points="215,100 225,105 215,110"/>
+<line x1="180" y1="40" x2="180" y2="-5"/><polygon points="175,-5 180,-15 185,-5"/>
+<line x1="100" y1="150" x2="100" y2="195"/><polygon points="95,195 100,205 105,195"/>
+</g>
+<g stroke="var(--ko)" stroke-width="2" fill="var(--ko)">
+<line x1="170" y1="130" x2="170" y2="80"/><polygon points="165,80 170,70 175,80"/>
+<line x1="140" y1="40" x2="90" y2="40"/><polygon points="90,35 80,40 90,45"/>
+</g>
+<text x="230" y="110" fill="var(--sig)">σ<tspan font-size="9" dy="3">xx</tspan></text>
+<text x="188" y="-5" fill="var(--sig)">σ<tspan font-size="9" dy="3">zz</tspan></text>
+<text x="108" y="205" fill="var(--sig)">σ<tspan font-size="9" dy="3">yy</tspan></text>
+<text x="176" y="70" fill="var(--ko)">σ<tspan font-size="9" dy="3">zx</tspan></text>
+<text x="60" y="35" fill="var(--ko)">σ<tspan font-size="9" dy="3">xz</tspan></text>
+</g>
+<g transform="translate(360,30)">
+<polygon points="20,160 200,160 200,20" fill="var(--bg-2)" stroke="var(--ink-2)"/>
+<line x1="200" y1="20" x2="20" y2="160" stroke="var(--accent-2)" stroke-width="2"/>
+<g stroke="var(--ink)" stroke-width="1.5" fill="var(--ink)"><line x1="110" y1="90" x2="70" y2="40"/><polygon points="66,46 64,34 76,40"/></g>
+<text x="52" y="32">n</text>
+<g stroke="var(--sig)" stroke-width="2" fill="var(--sig)"><line x1="110" y1="90" x2="150" y2="140"/><polygon points="144,142 156,148 154,136"/></g>
+<text x="160" y="150" fill="var(--sig)">T(n)</text>
+<text x="20" y="200" fill="var(--ink-2)">T = σ·n ; σ<tspan font-size="9" dy="3">n</tspan><tspan dy="-3"> = n·σ·n, τ dans le plan de la facette</tspan></text>
+</g>
+</svg><figcaption>À gauche, les composantes du tenseur sur les faces du cube : premier indice, direction de la composante ; second, normale de la face. À droite, le vecteur contrainte sur une facette inclinée, somme d'une part normale et d'une part tangentielle.</figcaption></figure>
+<div class="calc" id="c-fac"><p class="ct">Vecteur contrainte sur une facette quelconque</p>
+<div class="grid">
+<label>σ<sub>xx</sub> (MPa)<input id="f-sxx" value="60"></label><label>σ<sub>yy</sub><input id="f-syy" value="-20"></label><label>σ<sub>zz</sub><input id="f-szz" value="10"></label>
+<label>σ<sub>xy</sub><input id="f-sxy" value="30"></label><label>σ<sub>yz</sub><input id="f-syz" value="0"></label><label>σ<sub>xz</sub><input id="f-sxz" value="-15"></label>
+<label>n<sub>x</sub><input id="f-nx" value="1"></label><label>n<sub>y</sub><input id="f-ny" value="1"></label><label>n<sub>z</sub><input id="f-nz" value="0"></label>
+</div><div class="out" id="f-out"></div></div>
+
+<h3>Équations d'équilibre</h3>
+<p>Écrivons l'équilibre des forces sur un petit cube soumis à la contrainte sur ses faces et à une force volumique \(\vec f\) (le poids, \(\rho\vec g\)). Les contraintes varient d'une face à la face opposée ; leur bilan donne, en chaque point :</p>
+<div class="formula">\[\frac{\partial\sigma_{xx}}{\partial x}+\frac{\partial\sigma_{xy}}{\partial y}+\frac{\partial\sigma_{xz}}{\partial z}+f_x = 0,\quad \frac{\partial\sigma_{xy}}{\partial x}+\frac{\partial\sigma_{yy}}{\partial y}+\frac{\partial\sigma_{yz}}{\partial z}+f_y = 0,\quad \ldots\]<span class="ref">\(\mathrm{div}\,\boldsymbol\sigma+\vec f=\vec 0\) — en dynamique, \(\rho\,\ddot{\vec u}\) au second membre</span></div>
+<p>Sur la surface du solide, le vecteur contrainte doit égaler la force surfacique appliquée : \(\boldsymbol\sigma\cdot\vec n = \vec F_s\) (nul sur une surface libre). Ce sont les <b>conditions aux limites</b> en contraintes.</p>
+<div class="box bridge"><b class="t">Déjà vu en géotechnique</b>
+Un sol horizontal pesant : \(\sigma_{zz}\) ne dépend que de \(z\), la première équation d'équilibre (axe \(z\) vers le bas, \(f_z=\gamma\)) donne \(\partial\sigma_{zz}/\partial z = \gamma\), donc \(\sigma_{v}=\gamma z\). La contrainte verticale « poids des terres » n'est rien d'autre que l'équilibre de la MMC.</div>
+
+<h3>Contraintes principales et invariants</h3>
+<p>Comme pour les déformations, il existe trois facettes perpendiculaires sur lesquelles le vecteur contrainte est purement normal (\(\tau=0\)). Ce sont les <b>facettes principales</b> ; les contraintes qu'elles portent sont les <b>contraintes principales</b> \(\sigma_1\ge\sigma_2\ge\sigma_3\), solutions de \(\det(\boldsymbol\sigma-\lambda\mathbf I)=0\) :</p>
+<div class="formula">\[\lambda^3 - I_1\lambda^2 + I_2\lambda - I_3 = 0\qquad I_1=\mathrm{tr}\,\boldsymbol\sigma,\quad I_2 = \sigma_{xx}\sigma_{yy}+\sigma_{yy}\sigma_{zz}+\sigma_{zz}\sigma_{xx}-\sigma_{xy}^2-\sigma_{yz}^2-\sigma_{xz}^2,\quad I_3=\det\boldsymbol\sigma\]</div>
+<p>Les <b>invariants</b> \(I_1, I_2, I_3\) ne changent pas quand on tourne les axes : ils caractérisent l'état de contrainte indépendamment du repère. Deux autres grandeurs invariantes servent partout, surtout dans les sols :</p>
+<div class="formula">\[p = \frac{I_1}{3} = \frac{\sigma_1+\sigma_2+\sigma_3}{3}\quad\text{(contrainte moyenne)}\qquad \mathbf s = \boldsymbol\sigma - p\,\mathbf I\quad\text{(déviateur)}\qquad q = \sqrt{3J_2} = \sqrt{\tfrac12\left[(\sigma_1-\sigma_2)^2+(\sigma_2-\sigma_3)^2+(\sigma_3-\sigma_1)^2\right]}\]</div>
+<p>\(p\) change le volume ; le déviateur \(\mathbf s\) change la forme. La <b>contrainte tangentielle maximale</b> vaut \(\tau_{max}=(\sigma_1-\sigma_3)/2\), sur les facettes à 45° des directions 1 et 3.</p>
+<div class="calc" id="c-pri"><p class="ct">Tenseur 3D → contraintes principales, invariants, p, q, τ<sub>max</sub></p>
+<div class="grid">
+<label>σ<sub>xx</sub> (MPa)<input id="p-sxx" value="60"></label><label>σ<sub>yy</sub><input id="p-syy" value="-20"></label><label>σ<sub>zz</sub><input id="p-szz" value="10"></label>
+<label>σ<sub>xy</sub><input id="p-sxy" value="30"></label><label>σ<sub>yz</sub><input id="p-syz" value="0"></label><label>σ<sub>xz</sub><input id="p-sxz" value="-15"></label>
+</div><div class="out" id="p-out"></div></div>
+
+<h3>Le cercle de Mohr</h3>
+<p>En état plan (\(\sigma_{xz}=\sigma_{yz}=0\)), tournons la facette d'un angle \(\theta\) autour de \(z\). Les composantes sur la facette tournée s'écrivent :</p>
+<div class="formula">\[\sigma_n = \frac{\sigma_{xx}+\sigma_{yy}}{2}+\frac{\sigma_{xx}-\sigma_{yy}}{2}\cos2\theta+\sigma_{xy}\sin2\theta,\qquad \tau = -\frac{\sigma_{xx}-\sigma_{yy}}{2}\sin2\theta+\sigma_{xy}\cos2\theta\]</div>
+<p>Dans le plan \((\sigma_n,\tau)\), le point \((\sigma_n,\tau)\) décrit un <b>cercle</b> de centre \(C=(\sigma_{xx}+\sigma_{yy})/2\) et de rayon \(R=\sqrt{\left(\tfrac{\sigma_{xx}-\sigma_{yy}}{2}\right)^2+\sigma_{xy}^2}\) : tourner la facette de \(\theta\) fait tourner le point de \(2\theta\) sur le cercle. Les intersections avec l'axe \(\sigma_n\) sont \(\sigma_1=C+R\) et \(\sigma_2=C-R\) ; le sommet donne \(\tau_{max}=R\).</p>
+<figure><svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" font-family="system-ui" font-size="13">
+<g transform="translate(60,150)">
+<line x1="-30" y1="0" x2="420" y2="0" stroke="var(--ink-3)"/><line x1="0" y1="120" x2="0" y2="-130" stroke="var(--ink-3)"/>
+<text x="425" y="4" fill="var(--ink-2)">σ<tspan font-size="9" dy="3">n</tspan></text><text x="6" y="-120" fill="var(--ink-2)">τ</text>
+<circle cx="200" cy="0" r="110" fill="var(--bg-2)" stroke="var(--accent)" stroke-width="2"/>
+<circle cx="200" cy="0" r="3" fill="var(--ink)"/><text x="195" y="18" fill="var(--ink-2)">C</text>
+<circle cx="310" cy="0" r="4" fill="var(--sig)"/><text x="300" y="-10" fill="var(--sig)">σ<tspan font-size="9" dy="3">1</tspan></text>
+<circle cx="90" cy="0" r="4" fill="var(--sig)"/><text x="80" y="-10" fill="var(--sig)">σ<tspan font-size="9" dy="3">2</tspan></text>
+<circle cx="278" cy="-78" r="5" fill="var(--ko)"/><text x="286" y="-82" fill="var(--ko)">(σ<tspan font-size="9" dy="3">xx</tspan><tspan dy="-3">, σ</tspan><tspan font-size="9" dy="3">xy</tspan><tspan dy="-3">)</tspan></text>
+<circle cx="122" cy="78" r="5" fill="var(--ko)"/><text x="128" y="96" fill="var(--ko)">(σ<tspan font-size="9" dy="3">yy</tspan><tspan dy="-3">, −σ</tspan><tspan font-size="9" dy="3">xy</tspan><tspan dy="-3">)</tspan></text>
+<line x1="278" y1="-78" x2="122" y2="78" stroke="var(--ko)" stroke-dasharray="4 3"/>
+<path d="M240 0 A40 40 0 0 0 228 -28" fill="none" stroke="var(--ink-2)"/><text x="244" y="-22" fill="var(--ink-2)">2θ</text>
+<line x1="200" y1="0" x2="200" y2="-110" stroke="var(--ink-3)" stroke-dasharray="3 2"/><text x="205" y="-100" fill="var(--ink-2)">τ<tspan font-size="9" dy="3">max</tspan><tspan dy="-3"> = R</tspan></text>
+</g></svg><figcaption>Cercle de Mohr des contraintes planes. Le diamètre rouge joint les deux facettes \(x\) et \(y\) ; l'angle au centre \(2\theta\) mesure la rotation jusqu'à la facette principale. Convention : τ positive quand elle fait tourner l'élément dans le sens horaire (le point \(y\) est alors en \(-\sigma_{xy}\)).</figcaption></figure>
+<p>En 3D, les trois cercles construits sur \((\sigma_1,\sigma_2)\), \((\sigma_2,\sigma_3)\) et \((\sigma_1,\sigma_3)\) bornent la zone des états \((\sigma_n,\tau)\) possibles : le grand cercle donne \(\tau_{max}\).</p>
+<div class="calc" id="c-mohr"><p class="ct">État plan → cercle de Mohr, contraintes principales et facette tournée</p>
+<div class="grid">
+<label>σ<sub>xx</sub> (MPa)<input id="m-sxx" value="80"></label><label>σ<sub>yy</sub><input id="m-syy" value="-40"></label><label>σ<sub>xy</sub><input id="m-sxy" value="30"></label><label>Facette : θ (°)<input id="m-th" value="30"></label>
+</div><div class="out" id="m-out"></div>
+<p class="muted">Le <a href="labo.html#mohr">banc « cercle de Mohr »</a> fait tourner la facette à la main.</p></div>
+<div class="box key"><b class="t">À retenir</b>
+\(\vec T=\boldsymbol\sigma\cdot\vec n\). Six composantes, trois contraintes principales, trois invariants. \(p\) comprime, \(\mathbf s\) distord. Équilibre : \(\mathrm{div}\,\boldsymbol\sigma+\vec f=0\). Cercle de Mohr : rotation de \(\theta\) sur la facette, de \(2\theta\) sur le cercle ; \(\tau_{max}=(\sigma_1-\sigma_3)/2\).</div>
+<div class="chap-links"><a class="btn" href="exerciseur.html#ch3">Exercices du chapitre</a><a class="btn" href="labo.html#mohr">Banc : cercle de Mohr</a></div>
+
+<h2 id="ch4">4 · Loi de comportement : élasticité linéaire</h2>
+<h3>Deux constantes mesurées sur une éprouvette</h3>
+<p>Les chapitres 2 et 3 sont de la géométrie et de la statique : ils valent pour tout matériau. Ce qui distingue l'acier du caoutchouc ou de l'argile, c'est la relation entre \(\boldsymbol\sigma\) et \(\boldsymbol\varepsilon\) : la <b>loi de comportement</b>. La plus simple, et la plus utilisée, est l'élasticité linéaire isotrope, identifiée par un essai de traction :</p>
+<div class="formula">\[\sigma_{xx}=E\,\varepsilon_{xx}\qquad \varepsilon_{yy}=\varepsilon_{zz}=-\nu\,\varepsilon_{xx}\]<span class="ref">\(E\) : module d'Young (MPa) ; \(\nu\) : coefficient de Poisson (sans dimension, \(0\le\nu<0{,}5\))</span></div>
+<p>Une traction selon \(x\) allonge selon \(x\) et <i>rétrécit</i> selon \(y\) et \(z\). \(\nu=0{,}5\) correspondrait à un matériau incompressible (caoutchouc, argile saturée à court terme) ; \(\nu\to 0\) à un matériau qui ne se contracte pas latéralement (liège).</p>
+<div class="tw"><table><tr><th>Matériau</th><th>E (MPa)</th><th>ν</th><th>Limite (MPa)</th></tr>
+<tr><td>Acier</td><td>210 000</td><td>0,30</td><td>235–500 (f<sub>y</sub>)</td></tr>
+<tr><td>Béton C30/37</td><td>33 000</td><td>0,20</td><td>30 en compression, ≈ 3 en traction</td></tr>
+<tr><td>Bois (sens du fil)</td><td>11 000</td><td>—</td><td>≈ 24</td></tr>
+<tr><td>Enrobé bitumineux (15 °C, 10 Hz)</td><td>7 000</td><td>0,35</td><td>fatigue : ε₆ ≈ 100 µε</td></tr>
+<tr><td>Grave non traitée</td><td>200–600</td><td>0,35</td><td>—</td></tr>
+<tr><td>Sable, argile ferme</td><td>10–100</td><td>0,30–0,45</td><td>c, φ (ch. 6)</td></tr></table></div>
+<h3>La loi de Hooke généralisée</h3>
+<p>Dans un état de contrainte quelconque, chaque contrainte normale produit son allongement et ses deux contractions de Poisson ; chaque cisaillement produit sa distorsion. Par superposition :</p>
+<div class="formula">\[\boldsymbol\varepsilon = \frac{1+\nu}{E}\,\boldsymbol\sigma - \frac{\nu}{E}\,\mathrm{tr}(\boldsymbol\sigma)\,\mathbf I\qquad\Longleftrightarrow\qquad \boldsymbol\sigma = \lambda\,\mathrm{tr}(\boldsymbol\varepsilon)\,\mathbf I + 2\mu\,\boldsymbol\varepsilon\]</div>
+<p>Composante par composante : \(\varepsilon_{xx}=\frac1E[\sigma_{xx}-\nu(\sigma_{yy}+\sigma_{zz})]\) et \(\gamma_{xy}=\sigma_{xy}/G\). Les <b>coefficients de Lamé</b> \(\lambda,\mu\), le module de cisaillement \(G\) et le module de compressibilité \(K\) sont d'autres façons d'écrire les mêmes deux constantes :</p>
+<div class="formula">\[G=\mu=\frac{E}{2(1+\nu)}\qquad K=\frac{E}{3(1-2\nu)}\qquad \lambda=\frac{E\nu}{(1+\nu)(1-2\nu)}\qquad p = K\,\theta,\quad \mathbf s = 2G\,\mathbf e\]<span class="ref">\(\theta=\mathrm{tr}\,\boldsymbol\varepsilon\), \(\mathbf e\) déviateur des déformations : \(K\) répond au changement de volume, \(G\) au changement de forme</span></div>
+<div class="calc" id="c-cst"><p class="ct">Conversion des constantes élastiques</p>
+<div class="grid">
+<label>Données<select id="k-mode"><option value="Enu">E et ν</option><option value="lm">λ et μ</option><option value="KG">K et G</option></select></label>
+<label id="k-l1">E (MPa)<input id="k-a" value="33000"></label><label id="k-l2">ν<input id="k-b" value="0.2"></label>
+</div><div class="out" id="k-out"></div></div>
+<div class="calc" id="c-hooke"><p class="ct">Hooke : contraintes ↔ déformations</p>
+<div class="grid">
+<label>Sens<select id="h-mode"><option value="se">σ → ε</option><option value="es">ε → σ</option></select></label>
+<label>E (MPa)<input id="h-E" value="210000"></label><label>ν<input id="h-nu" value="0.3"></label>
+<label id="h-l0">σ<sub>xx</sub> (MPa)<input id="h-0" value="120"></label><label id="h-l1">σ<sub>yy</sub><input id="h-1" value="40"></label><label id="h-l2">σ<sub>zz</sub><input id="h-2" value="0"></label>
+<label id="h-l3">σ<sub>xy</sub><input id="h-3" value="25"></label><label id="h-l4">σ<sub>yz</sub><input id="h-4" value="0"></label><label id="h-l5">σ<sub>xz</sub><input id="h-5" value="0"></label>
+</div><div class="out" id="h-out"></div></div>
+<h3>Contraintes planes, déformations planes</h3>
+<p>Deux simplifications couvrent la majorité des calculs plans du génie civil :</p>
+<div class="tw"><table><tr><th></th><th>Contraintes planes</th><th>Déformations planes</th></tr>
+<tr><td>Hypothèse</td><td>\(\sigma_{zz}=\sigma_{xz}=\sigma_{yz}=0\)</td><td>\(\varepsilon_{zz}=\varepsilon_{xz}=\varepsilon_{yz}=0\)</td></tr>
+<tr><td>Cas</td><td>plaque mince chargée dans son plan, voile, âme de poutre</td><td>ouvrage long : remblai, mur, tunnel, chaussée sous une roue (approché), barrage-poids</td></tr>
+<tr><td>Ce qui n'est pas nul</td><td>\(\varepsilon_{zz}=-\frac{\nu}{E}(\sigma_{xx}+\sigma_{yy})\)</td><td>\(\sigma_{zz}=\nu(\sigma_{xx}+\sigma_{yy})\)</td></tr>
+<tr><td>Loi plane</td><td>\(E,\nu\) inchangés</td><td>remplacer \(E\) par \(E/(1-\nu^2)\) et \(\nu\) par \(\nu/(1-\nu)\)</td></tr></table></div>
+<h3>Énergie de déformation</h3>
+<p>Le travail des contraintes se stocke dans le solide élastique. Par unité de volume :</p>
+<div class="formula">\[w = \frac12\,\boldsymbol\sigma:\boldsymbol\varepsilon = \frac12\sum_{ij}\sigma_{ij}\varepsilon_{ij} = \frac{p^2}{2K}+\frac{q^2}{6G}\]<span class="ref">part volumique + part de distorsion — c'est la seconde que von Mises borne (ch. 6)</span></div>
+<p>C'est la base des méthodes énergétiques de la RDM (Clapeyron, Castigliano, éléments finis).</p>
+<div class="box key"><b class="t">À retenir</b>
+Deux constantes suffisent pour un matériau isotrope : \((E,\nu)\), ou \((\lambda,\mu)\), ou \((K,G)\). Traction selon \(x\) : allongement \(\sigma/E\) selon \(x\), contraction \(\nu\sigma/E\) selon \(y,z\). Cisaillement : \(\gamma=\tau/G\). Déformations planes pour les ouvrages longs, contraintes planes pour les plaques minces.</div>
+<div class="chap-links"><a class="btn" href="exerciseur.html#ch4">Exercices du chapitre</a><a class="btn" href="labo.html#traction">Banc : éprouvette en traction</a></div>
+
+<h2 id="ch5">5 · Le problème d'élasticité et ses solutions classiques</h2>
+<h3>Quinze équations pour quinze inconnues</h3>
+<p>En chaque point, on cherche 3 déplacements, 6 déformations et 6 contraintes. On dispose de 6 relations déformation-déplacement (ch. 2), 3 équations d'équilibre (ch. 3) et 6 relations de Hooke (ch. 4), avec, sur la frontière, des déplacements imposés (appuis) ou des forces imposées (charges). En éliminant \(\boldsymbol\varepsilon\) et \(\boldsymbol\sigma\), tout se ramène à trois équations sur \(\vec u\), les <b>équations de Navier</b> :</p>
+<div class="formula">\[(\lambda+\mu)\,\nabla(\mathrm{div}\,\vec u)+\mu\,\Delta\vec u+\vec f = \vec 0\]</div>
+<p>Trois propriétés rendent le problème maniable :</p>
+<ul>
+<li><b>Unicité</b> : la solution existe et est unique (Kirchhoff). Si l'on trouve un champ qui vérifie tout, c'est <i>la</i> solution — méthode semi-inverse.</li>
+<li><b>Superposition</b> : le problème est linéaire ; la solution pour deux charges est la somme des solutions. Toute la RDM repose dessus.</li>
+<li><b>Saint-Venant</b> : loin du point d'application (à quelques dimensions de la section), seul compte le torseur de la charge, pas sa répartition. C'est ce qui autorise à remplacer une charge réelle par sa résultante et son moment.</li>
+</ul>
+<p>Peu de problèmes ont une solution analytique. Ceux qui en ont sont les piliers du génie civil ; les autres se résolvent par éléments finis, qui ne font qu'appliquer numériquement ces quinze équations.</p>
+
+<h3>Barre en traction</h3>
+<p>Section \(A\), effort \(N\) : \(\sigma_{xx}=N/A\) uniforme, les autres composantes nulles. Vérifie l'équilibre et les conditions aux limites sur les faces latérales libres. Allongement \(\Delta L = NL/(EA)\), contraction du diamètre \(\Delta d/d = -\nu N/(EA)\).</p>
+
+<h3>Flexion pure d'une poutre</h3>
+<p>Poutre d'axe \(x\), moment \(M\) autour de \(z\) constant. Cherchons la solution où chaque section plane reste plane et tourne : \(u_x = -\kappa\,x\,y\), d'où \(\varepsilon_{xx}=-\kappa y\) (les fibres d'un côté s'allongent, de l'autre se raccourcissent, linéairement). Hooke en traction simple : \(\sigma_{xx}=-E\kappa y\), toutes les autres contraintes nulles. L'équilibre est vérifié ; sur la section, résultante nulle si \(y\) est compté depuis le centre de gravité, et moment \(M=\int -y\,\sigma_{xx}\,dA = E\kappa I\). D'où :</p>
+<div class="formula">\[\sigma_{xx} = -\frac{M\,y}{I},\qquad \kappa = \frac{1}{R} = \frac{M}{EI},\qquad I=\int_A y^2\,dA\]<span class="ref">solution exacte de l'élasticité, pas une approximation de la RDM</span></div>
+<p>Les contractions de Poisson \(\varepsilon_{yy}=\varepsilon_{zz}=\nu\kappa y\) sont là, mais elles ne créent pas de contrainte : la section se déforme librement (anticlastique). Avec un effort tranchant \(T\), s'ajoute un cisaillement \(\sigma_{xy}\) qui n'est plus exact mais que Saint-Venant a résolu pour les sections courantes ; la RDM en retient \(\tau = T\,Q/(I\,b)\) (Jourawski).</p>
+<div class="calc" id="c-flex"><p class="ct">Flexion pure : contrainte et courbure</p>
+<div class="grid">
+<label>M (kN·m)<input id="fl-M" value="120"></label><label>Section<select id="fl-sec"><option value="rect">rectangle b×h</option><option value="circ">cercle ∅</option></select></label>
+<label id="fl-lb">b (mm)<input id="fl-b" value="300"></label><label id="fl-lh">h (mm)<input id="fl-h" value="600"></label><label>E (MPa)<input id="fl-E" value="33000"></label>
+</div><div class="out" id="fl-out"></div></div>
+
+<h3>Torsion d'un cylindre circulaire</h3>
+<p>Couple \(M_t\), sections qui tournent les unes par rapport aux autres de \(\alpha\) par unité de longueur sans gauchir (vrai seulement pour la section circulaire) : \(\gamma = \alpha r\), \(\tau = G\alpha r\), maximale sur la peau ; \(M_t = G\alpha J\) avec \(J=\pi d^4/32\). Une section non circulaire gauchit : la formule n'est plus valable, et une section ouverte mince (profilé en U, en I) est extrêmement souple en torsion.</p>
+
+<h3>Tube épais sous pression (Lamé)</h3>
+<p>Tube de rayons \(a\) (intérieur) et \(b\) (extérieur), pressions \(p_a\) et \(p_b\). En coordonnées cylindriques, avec \(\sigma_{r\theta}=0\) par symétrie, l'équilibre \(d\sigma_r/dr + (\sigma_r-\sigma_\theta)/r=0\) et Hooke donnent :</p>
+<div class="formula">\[\sigma_r = A - \frac{B}{r^2},\qquad \sigma_\theta = A + \frac{B}{r^2},\qquad A=\frac{p_a a^2-p_b b^2}{b^2-a^2},\quad B=\frac{(p_a-p_b)\,a^2 b^2}{b^2-a^2}\]</div>
+<p>Sous pression intérieure seule, \(\sigma_\theta\) est maximale sur la paroi intérieure et vaut \(p_a (b^2+a^2)/(b^2-a^2)\) — plus que \(p_a\) toujours, et bien plus que \(p_a a/e\) de la coque mince quand la paroi est épaisse. Conduites forcées, galeries sous pression, puits, buses enterrées sous un chargement radial : même solution.</p>
+<div class="calc" id="c-lame"><p class="ct">Tube épais de Lamé</p>
+<div class="grid">
+<label>a intérieur (mm)<input id="la-a" value="500"></label><label>b extérieur (mm)<input id="la-b" value="650"></label><label>p<sub>a</sub> (MPa)<input id="la-pa" value="2"></label><label>p<sub>b</sub> (MPa)<input id="la-pb" value="0"></label><label>r de calcul (mm)<input id="la-r" value="500"></label>
+</div><div class="out" id="la-out"></div></div>
+
+<h3>Charge ponctuelle sur un massif semi-infini (Boussinesq)</h3>
+<p>Force verticale \(P\) appliquée en surface d'un demi-espace élastique. La contrainte verticale à la profondeur \(z\) et à la distance horizontale \(r\) du point d'application vaut :</p>
+<div class="formula">\[\sigma_z = \frac{3P}{2\pi}\,\frac{z^3}{R^5},\qquad R=\sqrt{r^2+z^2}\qquad\text{sous l'axe : }\sigma_z=\frac{3P}{2\pi z^2}\]<span class="ref">indépendante de \(E\) et de \(\nu\) — les déplacements, eux, en dépendent</span></div>
+<p>Les isovaleurs de \(\sigma_z\) forment le <b>bulbe des contraintes</b>. Sous une charge répartie, on intègre Boussinesq : sous le centre d'une plaque circulaire souple de rayon \(a\) chargée à \(q\),</p>
+<div class="formula">\[\sigma_z(z) = q\left[1-\frac{z^3}{(a^2+z^2)^{3/2}}\right],\qquad s_0 = \frac{2(1-\nu^2)\,q\,a}{E}\ \text{(tassement au centre)}\]</div>
+<p>À \(z = 2a\) (un diamètre), \(\sigma_z\) ne vaut plus que 28 % de \(q\) ; à \(z=4a\), 9 %. C'est l'origine de la règle « le sol qui travaille sous une semelle occupe 1,5 B » et de la profondeur d'investigation des sondages.</p>
+<div class="calc" id="c-bou"><p class="ct">Boussinesq : charge ponctuelle et plaque circulaire</p>
+<div class="grid">
+<label>P (kN)<input id="bo-P" value="500"></label><label>z (m)<input id="bo-z" value="1.5"></label><label>r (m)<input id="bo-r" value="0.5"></label>
+<label>Plaque : q (kPa)<input id="bo-q" value="200"></label><label>rayon a (m)<input id="bo-a" value="1"></label><label>E (MPa)<input id="bo-E" value="30"></label><label>ν<input id="bo-nu" value="0.3"></label>
+</div><div class="out" id="bo-out"></div></div>
+<div class="box bridge"><b class="t">Vers les chaussées</b>
+Une chaussée est un massif de Boussinesq à plusieurs couches : la solution de Burmister (1943) résout le même problème avec des couches de modules différents collées ou glissantes. Alizé, le logiciel de dimensionnement français, ne fait rien d'autre. Les déformations qu'il fournit — \(\varepsilon_t\) à la base des couches liées, \(\varepsilon_z\) au sommet du sol — sont celles du chapitre 2, et la loi des couches est celle du chapitre 4.</div>
+
+<h3>Trou circulaire dans une plaque en traction (Kirsch)</h3>
+<p>Plaque infinie soumise à \(\sigma_\infty\) selon \(x\), percée d'un trou de rayon \(a\). Sur le bord du trou, la contrainte orthoradiale vaut \(\sigma_\theta = \sigma_\infty(1-2\cos2\theta)\) : elle atteint \(3\sigma_\infty\) aux deux points du diamètre perpendiculaire à la traction et \(-\sigma_\infty\) (compression) sur le diamètre parallèle. Le <b>facteur de concentration de contrainte</b> vaut 3, quel que soit le rayon du trou, et l'effet disparaît à trois ou quatre rayons du bord : encore Saint-Venant.</p>
+<div class="formula">\[\sigma_\theta(r,\theta) = \frac{\sigma_\infty}{2}\left(1+\frac{a^2}{r^2}\right)-\frac{\sigma_\infty}{2}\left(1+\frac{3a^4}{r^4}\right)\cos2\theta\]</div>
+<p>Trou d'homme dans une poutre-caisson, ouverture dans un voile, galerie dans un massif (où \(\sigma_\infty\) est la contrainte in situ, et le facteur 3 explique les écaillages en paroi), percement dans une plaque métallique : même mécanisme.</p>
+<div class="box key"><b class="t">À retenir</b>
+Unicité, superposition, Saint-Venant. Cinq solutions à connaître : traction (\(N/A\)), flexion (\(My/I\)), torsion (\(M_t r/J\)), Lamé (\(A \pm B/r^2\)), Boussinesq (\(3Pz^3/2\pi R^5\)) — et le facteur 3 de Kirsch.</div>
+<div class="chap-links"><a class="btn" href="exerciseur.html#ch5">Exercices du chapitre</a><a class="btn" href="labo.html#boussinesq">Banc : bulbe de Boussinesq</a><a class="btn" href="labo.html#kirsch">Banc : trou de Kirsch</a></div>
+
+<h2 id="ch6">6 · Limite élastique et critères</h2>
+<h3>Pourquoi un critère</h3>
+<p>L'essai de traction donne une limite \(\sigma_e\) pour un état de contrainte à une seule composante. Un état réel en a six. Un <b>critère</b> est une fonction scalaire \(f(\boldsymbol\sigma)\) qui ramène les six composantes à un seul nombre à comparer à la limite : \(f(\boldsymbol\sigma)\le\sigma_e\). Il doit être invariant par rotation, donc s'exprimer avec les contraintes principales ou les invariants. Chaque famille de matériaux a le sien.</p>
+<h3>Métaux : Tresca et von Mises</h3>
+<p>Les métaux plastifient par glissement : c'est le cisaillement qui compte, et la pression hydrostatique n'a aucun effet.</p>
+<div class="formula">\[\text{Tresca : }\ \sigma_1-\sigma_3 \le \sigma_e\qquad\qquad \text{von Mises : }\ q=\sqrt{\tfrac12\left[(\sigma_1-\sigma_2)^2+(\sigma_2-\sigma_3)^2+(\sigma_3-\sigma_1)^2\right]}\le\sigma_e\]</div>
+<p>Tresca borne \(\tau_{max}\) à \(\sigma_e/2\) ; von Mises borne l'énergie de distorsion. En cisaillement pur, Tresca donne \(\tau_e=\sigma_e/2\), von Mises \(\tau_e=\sigma_e/\sqrt3 = 0{,}577\,\sigma_e\) — l'écart maximal entre les deux, 15 %. Les Eurocodes acier utilisent von Mises (\(\sigma_{eq}=\sqrt{\sigma^2+3\tau^2}\le f_y\) en contraintes planes avec cisaillement).</p>
+<h3>Béton, roche en traction : Rankine</h3>
+<p>Les matériaux fragiles rompent quand la plus grande contrainte principale atteint la résistance en traction : \(\sigma_1\le f_t\). Pour le béton, \(f_t\approx 0{,}1\,f_c\) : la fissuration se produit perpendiculairement à \(\sigma_1\). C'est ce que dessinent les bielles et tirants, et ce que les étriers reprennent dans une âme cisaillée.</p>
+<h3>Sols, béton en compression, roche : Mohr-Coulomb</h3>
+<p>La résistance au cisaillement croît avec la contrainte normale sur la facette de rupture :</p>
+<div class="formula">\[\tau \le c + \sigma_n\tan\varphi\qquad\Longleftrightarrow\qquad \sigma_1-\sigma_3 \le (\sigma_1+\sigma_3)\sin\varphi+2c\cos\varphi\]<span class="ref">compressions comptées positives ; dans un sol, \(\sigma_n\) est la contrainte effective \(\sigma'_n=\sigma_n-u\)</span></div>
+<p>Dans le plan de Mohr, la droite de Coulomb est l'enveloppe des cercles à la rupture : la rupture a lieu sur la facette inclinée de \(45°+\varphi/2\) sur la direction de \(\sigma_3\) (la direction de la contrainte principale mineure), et non sur la facette de \(\tau_{max}\). Avec \(\varphi=0\), on retrouve Tresca avec \(c=\sigma_e/2=c_u\) : c'est le comportement à court terme d'une argile saturée. Avec \(c=0\), on a un sable. Le béton en compression biaxiale et la roche suivent la même forme, avec une courbure (Hoek-Brown pour la roche).</p>
+<div class="tw"><table><tr><th>Critère</th><th>Fonction</th><th>Matériaux</th><th>Pression hydrostatique</th></tr>
+<tr><td>Tresca</td><td>\(\sigma_1-\sigma_3\)</td><td>métaux, argile à court terme (\(c_u\))</td><td>sans effet</td></tr>
+<tr><td>von Mises</td><td>\(q\)</td><td>métaux (acier de construction)</td><td>sans effet</td></tr>
+<tr><td>Rankine</td><td>\(\sigma_1\)</td><td>béton, roche, fonte en traction</td><td>—</td></tr>
+<tr><td>Mohr-Coulomb</td><td>\(\sigma_1-\sigma_3-(\sigma_1+\sigma_3)\sin\varphi-2c\cos\varphi\)</td><td>sols, béton comprimé, roches, enrochements</td><td>renforce</td></tr></table></div>
+<div class="calc" id="c-crit"><p class="ct">Un état de contrainte face aux quatre critères</p>
+<div class="grid">
+<label>σ<sub>1</sub> (MPa)<input id="cr-s1" value="200"></label><label>σ<sub>2</sub><input id="cr-s2" value="50"></label><label>σ<sub>3</sub><input id="cr-s3" value="-120"></label>
+<label>σ<sub>e</sub> acier (MPa)<input id="cr-se" value="355"></label><label>f<sub>t</sub> (MPa)<input id="cr-ft" value="3"></label>
+<label>c (MPa)<input id="cr-c" value="0.02"></label><label>φ (°)<input id="cr-phi" value="30"></label>
+</div><div class="out" id="cr-out"></div>
+<p class="muted">Pour Mohr-Coulomb, les compressions sont comptées positives : saisir −σ. Le <a href="labo.html#criteres">banc « critères »</a> trace les surfaces.</p></div>
+<div class="box key"><b class="t">À retenir</b>
+Un critère ramène six composantes à un nombre. Métaux : le cisaillement décide (Tresca, von Mises), la pression ne compte pas. Fragiles : \(\sigma_1\) décide (Rankine). Sols, béton, roches : le cisaillement décide, mais la compression renforce (Mohr-Coulomb), rupture sur la facette à \(45°+\varphi/2\).</div>
+<div class="chap-links"><a class="btn" href="exerciseur.html#ch6">Exercices du chapitre</a><a class="btn" href="labo.html#criteres">Banc : critères</a></div>
+
+<h2 id="ch7">7 · De la MMC à la RDM</h2>
+<h3>Réduire le tenseur à un torseur</h3>
+<p>La RDM traite des solides élancés — poutres, barres, câbles — pour lesquels une dimension domine. Au lieu de chercher \(\boldsymbol\sigma\) en chaque point, elle intègre le vecteur contrainte \(\vec T(\vec x)=\boldsymbol\sigma\cdot\vec x\) sur la section et ne garde que sa résultante et son moment, le <b>torseur des efforts intérieurs</b> :</p>
+<div class="formula">\[N=\int_A\sigma_{xx}\,dA,\quad T_y=\int_A\sigma_{xy}\,dA,\quad T_z=\int_A\sigma_{xz}\,dA,\quad M_z = -\int_A y\,\sigma_{xx}\,dA,\quad M_y = \int_A z\,\sigma_{xx}\,dA,\quad M_t=\int_A(y\,\sigma_{xz}-z\,\sigma_{xy})\,dA\]</div>
+<p>Trois équations d'équilibre de la MMC, intégrées sur la section, deviennent les relations de la RDM : \(dN/dx=-p_x\), \(dT/dx=-p_y\), \(dM/dx=T\). Six inconnues le long d'une ligne au lieu de six champs dans un volume : c'est tout le gain.</p>
+<h3>Les hypothèses qui permettent de remonter aux contraintes</h3>
+<p>Pour passer du torseur à la contrainte en un point de la section, la RDM admet :</p>
+<ul>
+<li><b>Navier-Bernoulli</b> : les sections planes restent planes et normales à la fibre moyenne. En flexion pure, c'est exactement la solution de l'élasticité (ch. 5) ; avec effort tranchant, c'est une approximation d'autant meilleure que la poutre est élancée (\(L/h > 5\) à 10) ;</li>
+<li><b>Saint-Venant</b> : loin des appuis et des charges concentrées, seul compte le torseur ;</li>
+<li><b>linéarité</b> : Hooke et petites perturbations, d'où la superposition et le calcul des structures par sommation d'effets.</li>
+</ul>
+<div class="formula">\[\sigma_{xx} = \frac{N}{A}-\frac{M_z\,y}{I_z}+\frac{M_y\,z}{I_y},\qquad \tau_{xy} = \frac{T_y\,Q_z(y)}{I_z\,b(y)},\qquad \tau = \frac{M_t\,r}{J}\ \text{(section circulaire)}\]</div>
+<p>Ces contraintes sont des composantes du tenseur du chapitre 3. En un point de l'âme d'une poutre où règnent \(\sigma_{xx}\) et \(\tau_{xy}\), les contraintes principales se lisent sur le cercle de Mohr : \(\sigma_{1,2}=\sigma/2\pm\sqrt{\sigma^2/4+\tau^2}\), inclinées de \(\theta\) tel que \(\tan2\theta=2\tau/\sigma\). Dans le béton armé, les fissures d'effort tranchant suivent ces directions principales, à 45° au voisinage de l'axe neutre où \(\sigma_{xx}=0\).</p>
+<div class="calc" id="c-rdm"><p class="ct">Point d'une section : du torseur aux contraintes principales</p>
+<div class="grid">
+<label>σ<sub>xx</sub> = N/A − My/I (MPa)<input id="rd-s" value="-8"></label><label>τ<sub>xy</sub> = TQ/(Ib) (MPa)<input id="rd-t" value="2.5"></label><label>f<sub>ct</sub> béton (MPa)<input id="rd-ft" value="2.9"></label>
+</div><div class="out" id="rd-out"></div></div>
+<h3>Et vers les autres disciplines</h3>
+<div class="tw"><table><tr><th>Discipline</th><th>Ce qu'elle prend à la MMC</th><th>Ce qu'elle ajoute</th></tr>
+<tr><td>RDM, calcul des structures</td><td>équilibre, Hooke, flexion de Saint-Venant, énergie</td><td>hypothèse de poutre, torseur, méthodes des forces et des déplacements</td></tr>
+<tr><td>Béton armé</td><td>contraintes principales, Rankine, Mohr-Coulomb</td><td>fissuration, bielles-tirants, lois non linéaires</td></tr>
+<tr><td>Géotechnique</td><td>équilibre (\(\gamma z\)), Boussinesq, Mohr-Coulomb, cercle de Mohr</td><td>contraintes effectives, consolidation, dilatance</td></tr>
+<tr><td>Chaussées</td><td>Boussinesq multicouche (Burmister), déformations \(\varepsilon_t,\varepsilon_z\)</td><td>fatigue, viscoélasticité de l'enrobé, trafic cumulé</td></tr>
+<tr><td>Plaques, coques, éléments finis</td><td>les quinze équations, telles quelles</td><td>discrétisation ; aucune hypothèse de plus</td></tr></table></div>
+<div class="box key"><b class="t">À retenir</b>
+La RDM est la MMC intégrée sur une section et assortie de l'hypothèse de Navier-Bernoulli. \(N/A\), \(My/I\), \(TQ/Ib\) sont des composantes du tenseur des contraintes, et le cercle de Mohr en donne les directions principales — celles des fissures.</div>
+<div class="chap-links"><a class="btn" href="exerciseur.html#ch7">Exercices du chapitre</a></div>
+
+<h2>Pour approfondir</h2>
+<ul>
+<li>J. Salençon, <i>Mécanique des milieux continus</i>, 3 tomes, Éditions de l'École polytechnique — la référence française, complète et rigoureuse.</li>
+<li>J. Coirier, C. Nadot-Martin, <i>Mécanique des milieux continus</i>, Dunod — cours et exercices corrigés, niveau école d'ingénieurs.</li>
+<li>S. Timoshenko, J. N. Goodier, <i>Theory of Elasticity</i>, McGraw-Hill — toutes les solutions classiques du chapitre 5 (Lamé, Boussinesq, Kirsch, Saint-Venant).</li>
+<li>J. Lemaitre, J.-L. Chaboche, <i>Mécanique des matériaux solides</i>, Dunod — pour aller au-delà de l'élasticité : plasticité, viscoélasticité, endommagement.</li>
+</ul>
+
+</main>
+<footer>KSR · Ahmed Ksentini — ksr-infra.org · Mécanique des milieux continus, usage pédagogique.</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script src="js/common.js"></script>
+<script src="js/cours.js"></script>
+</body>
+</html>
