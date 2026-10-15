@@ -176,7 +176,8 @@ window.MMC = (function () {
   // canvas HiDPI
   function setupCanvas(c, w, h) {
     const r = window.devicePixelRatio || 1;
-    const W = Math.min(w, (c.parentElement && c.parentElement.clientWidth - 2) || w);
+    const pw = c.parentElement ? c.parentElement.clientWidth - 2 : 0;
+    const W = pw > 120 ? Math.min(w, pw) : w;
     const H = Math.round(h * W / w);
     c.width = W * r; c.height = H * r; c.style.width = W + 'px'; c.style.height = H + 'px';
     const ctx = c.getContext('2d'); ctx.setTransform(r, 0, 0, r, 0, 0);

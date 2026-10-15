@@ -25,110 +25,52 @@
 <li><a href="#torsion">Torsion</a> — cisaillement et hélices à 45°</li>
 </ol></div>
 
-<section class="lab" id="carre">
+<section class="lab" id="carre" data-banc="carre">
 <p class="lt">Banc 1 · Le carré qui se déforme</p>
 <p>Quatre curseurs fixent le gradient du déplacement. Le carré pointillé est l'état initial ; le carré plein, l'état déformé. Les flèches vertes sont les directions principales. La déformation est amplifiée pour être visible (facteur ×100).</p>
-<div class="grid">
-<label>∂u<sub>x</sub>/∂x = <span id="l-uxx"></span> ×10⁻³<input type="range" id="s-uxx" min="-3" max="3" step="0.1" value="1.2"></label>
-<label>∂u<sub>y</sub>/∂y = <span id="l-uyy"></span> ×10⁻³<input type="range" id="s-uyy" min="-3" max="3" step="0.1" value="-0.4"></label>
-<label>∂u<sub>x</sub>/∂y = <span id="l-uxy"></span> ×10⁻³<input type="range" id="s-uxy" min="-3" max="3" step="0.1" value="0.8"></label>
-<label>∂u<sub>y</sub>/∂x = <span id="l-uyx"></span> ×10⁻³<input type="range" id="s-uyx" min="-3" max="3" step="0.1" value="-0.2"></label>
-</div>
-<div class="row"><button data-set="1.5,0,0,0">traction x</button><button data-set="0,0,1,1">cisaillement pur</button><button data-set="0,0,1,-1">rotation pure</button><button data-set="1,1,0,0">dilatation</button><button data-set="1.5,-0.45,0,0">traction + Poisson</button></div>
-<canvas id="cv-carre" width="640" height="360"></canvas>
-<div class="out" id="o-carre"></div>
+<div class="mount" data-banc="carre"></div>
 </section>
 
-<section class="lab" id="mohr">
+<section class="lab" id="mohr" data-banc="mohr">
 <p class="lt">Banc 2 · Cercle de Mohr</p>
 <p>À gauche, l'élément de matière et la facette tournée de θ avec ses contraintes ; à droite, le cercle. Tourner θ de 1° fait tourner le point de 2° sur le cercle. Les repères verts sont les facettes principales, le repère rouge la facette de cisaillement maximal.</p>
-<div class="grid">
-<label>σ<sub>xx</sub> = <span id="l-sx"></span> MPa<input type="range" id="s-sx" min="-150" max="150" step="5" value="80"></label>
-<label>σ<sub>yy</sub> = <span id="l-sy"></span> MPa<input type="range" id="s-sy" min="-150" max="150" step="5" value="-40"></label>
-<label>σ<sub>xy</sub> = <span id="l-sxy"></span> MPa<input type="range" id="s-sxy" min="-100" max="100" step="5" value="30"></label>
-<label>θ = <span id="l-th"></span> °<input type="range" id="s-th" min="0" max="180" step="1" value="30"></label>
-</div>
-<canvas id="cv-mohr" width="720" height="360"></canvas>
-<div class="out" id="o-mohr"></div>
+<div class="mount" data-banc="mohr"></div>
 </section>
 
-<section class="lab" id="traction">
+<section class="lab" id="traction" data-banc="traction">
 <p class="lt">Banc 3 · Éprouvette en traction</p>
 <p>Choisir le matériau, puis tirer. L'éprouvette s'allonge selon E et se rétrécit selon ν (déplacements amplifiés). Le diagramme σ–ε avance jusqu'à la limite élastique ; au-delà, le modèle linéaire n'est plus valable.</p>
-<div class="grid">
-<label>Matériau<select id="tr-mat"></select></label>
-<label>Diamètre ∅ (mm)<input id="tr-d" value="16"></label>
-<label>Longueur L<sub>0</sub> (mm)<input id="tr-L" value="200"></label>
-<label>Contrainte σ = <span id="l-ts"></span> % de la limite<input type="range" id="s-ts" min="0" max="120" step="1" value="60"></label>
-</div>
-<canvas id="cv-trac" width="720" height="300"></canvas>
-<div class="out" id="o-trac"></div>
+<div class="mount" data-banc="traction"></div>
 </section>
 
-<section class="lab" id="boussinesq">
+<section class="lab" id="boussinesq" data-banc="boussinesq">
 <p class="lt">Banc 4 · Bulbe de Boussinesq</p>
 <p>Charge appliquée en surface d'un massif semi-infini : ponctuelle, ou répartie sur une bande (intégration de la solution ponctuelle). Les couleurs et les isovaleurs donnent σ<sub>z</sub> ; toucher le massif lit la valeur au point.</p>
-<div class="grid">
-<label>Charge<select id="bo-type"><option value="point">ponctuelle P</option><option value="strip">bande de largeur B, pression q</option></select></label>
-<label>P (kN/m) ou q (kPa) = <span id="l-bP"></span><input type="range" id="s-bP" min="50" max="1000" step="10" value="300"></label>
-<label>B (m) = <span id="l-bB"></span><input type="range" id="s-bB" min="0.5" max="4" step="0.1" value="2"></label>
-<label>Profondeur affichée (m) = <span id="l-bz"></span><input type="range" id="s-bz" min="2" max="12" step="0.5" value="6"></label>
-</div>
-<canvas id="cv-bou" width="720" height="380"></canvas>
-<div class="out" id="o-bou"></div>
+<div class="mount" data-banc="boussinesq"></div>
 </section>
 
-<section class="lab" id="kirsch">
+<section class="lab" id="kirsch" data-banc="kirsch">
 <p class="lt">Banc 5 · Trou de Kirsch</p>
 <p>Plaque en traction σ<sub>∞</sub> selon x, percée d'un trou. La carte donne σ<sub>xx</sub>/σ<sub>∞</sub> ; la courbe, σ<sub>θ</sub> le long du bord du trou. Le facteur 3 ne dépend ni du rayon ni de σ<sub>∞</sub> ; glisser le curseur de r pour voir à quelle distance l'effet s'éteint.</p>
-<div class="grid">
-<label>r/a le long de l'axe y = <span id="l-kr"></span><input type="range" id="s-kr" min="1" max="5" step="0.05" value="1"></label>
-<label>Chargement<select id="k-load"><option value="1">traction simple σ<sub>∞</sub></option><option value="2">biaxiale égale (σ<sub>∞</sub>, σ<sub>∞</sub>)</option><option value="3">cisaillement pur (σ<sub>∞</sub>, −σ<sub>∞</sub>)</option></select></label>
-</div>
-<canvas id="cv-kir" width="720" height="360"></canvas>
-<div class="out" id="o-kir"></div>
+<div class="mount" data-banc="kirsch"></div>
 </section>
 
-<section class="lab" id="criteres">
+<section class="lab" id="criteres" data-banc="criteres">
 <p class="lt">Banc 6 · Critères de limite élastique</p>
 <p>À gauche, le plan (σ<sub>1</sub>, σ<sub>2</sub>) avec σ<sub>3</sub> = 0 : hexagone de Tresca, ellipse de von Mises, carré de Rankine, et le point de l'état de contrainte. À droite, le plan de Mohr : le cercle (σ<sub>1</sub>, σ<sub>3</sub>) face à la droite de Coulomb τ = c + σ tan φ (compressions positives).</p>
-<div class="grid">
-<label>σ<sub>1</sub> = <span id="l-c1"></span> MPa<input type="range" id="s-c1" min="-400" max="400" step="5" value="250"></label>
-<label>σ<sub>2</sub> = <span id="l-c2"></span> MPa<input type="range" id="s-c2" min="-400" max="400" step="5" value="-150"></label>
-<label>σ<sub>e</sub> = <span id="l-ce"></span> MPa<input type="range" id="s-ce" min="100" max="500" step="5" value="355"></label>
-<label>Sol : σ'<sub>1</sub> = <span id="l-m1"></span> kPa<input type="range" id="s-m1" min="0" max="600" step="10" value="300"></label>
-<label>σ'<sub>3</sub> = <span id="l-m3"></span> kPa<input type="range" id="s-m3" min="0" max="400" step="10" value="100"></label>
-<label>c = <span id="l-mc"></span> kPa<input type="range" id="s-mc" min="0" max="100" step="5" value="10"></label>
-<label>φ = <span id="l-mphi"></span> °<input type="range" id="s-mphi" min="0" max="45" step="1" value="30"></label>
-</div>
-<canvas id="cv-crit" width="720" height="360"></canvas>
-<div class="out" id="o-crit"></div>
+<div class="mount" data-banc="criteres"></div>
 </section>
 
-<section class="lab" id="lame">
+<section class="lab" id="lame" data-banc="lame">
 <p class="lt">Banc 7 · Tube épais de Lamé</p>
 <p>Un tube sous pression intérieure et extérieure. À gauche, la section avec les contraintes orthoradiales colorées ; à droite, les profils σ<sub>r</sub> et σ<sub>θ</sub> dans l'épaisseur, comparés à la formule de la coque mince.</p>
-<div class="grid">
-<label>a intérieur = <span id="l-la"></span> mm<input type="range" id="s-la" min="200" max="800" step="10" value="500"></label>
-<label>épaisseur e = <span id="l-le"></span> mm<input type="range" id="s-le" min="20" max="400" step="5" value="150"></label>
-<label>p<sub>a</sub> = <span id="l-lpa"></span> MPa<input type="range" id="s-lpa" min="0" max="5" step="0.1" value="2"></label>
-<label>p<sub>b</sub> = <span id="l-lpb"></span> MPa<input type="range" id="s-lpb" min="0" max="5" step="0.1" value="0"></label>
-</div>
-<canvas id="cv-lame" width="720" height="340"></canvas>
-<div class="out" id="o-lame"></div>
+<div class="mount" data-banc="lame"></div>
 </section>
 
-<section class="lab" id="torsion">
+<section class="lab" id="torsion" data-banc="torsion">
 <p class="lt">Banc 8 · Torsion d'un arbre circulaire</p>
 <p>Le couple fait tourner les sections les unes par rapport aux autres ; les génératrices deviennent des hélices. Le cisaillement est nul sur l'axe et maximal sur la peau. Les flèches à 45° sont les directions principales : c'est là que se fissure une craie ou un béton tordu.</p>
-<div class="grid">
-<label>M<sub>t</sub> = <span id="l-tm"></span> kN·m<input type="range" id="s-tm" min="0" max="60" step="1" value="20"></label>
-<label>d = <span id="l-td"></span> mm<input type="range" id="s-td" min="60" max="300" step="10" value="150"></label>
-<label>d<sub>i</sub> = <span id="l-tdi"></span> mm<input type="range" id="s-tdi" min="0" max="280" step="10" value="0"></label>
-<label>G = <span id="l-tg"></span> GPa<input type="range" id="s-tg" min="5" max="100" step="1" value="80"></label>
-</div>
-<canvas id="cv-tor" width="720" height="320"></canvas>
-<div class="out" id="o-tor"></div>
+<div class="mount" data-banc="torsion"></div>
 </section>
 
 </main>
@@ -136,6 +78,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <script src="js/common.js"></script>
+<script>MMC.nav('labo.html');</script>
 <script src="js/labo.js"></script>
 </body>
 </html>

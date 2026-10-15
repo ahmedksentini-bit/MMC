@@ -7,7 +7,7 @@ Site statique du cours de mécanique des milieux continus pour le génie civil, 
 | Page | Rôle |
 |---|---|
 | `index.html` | accueil, plan |
-| `cours.html` | le cours (boîte à outils + 7 chapitres), 16 calculateurs ; par chapitre : « En clair », « Lire la formule », « Pourquoi c'est vrai », exemple guidé, erreurs fréquentes, savoir-faire attendus |
+| `cours.html` | le cours (boîte à outils + 7 chapitres), 23 figures SVG, 16 calculateurs, les 8 bancs du laboratoire insérés à l'endroit où ils servent ; par chapitre : « En clair », « Lire la formule », « Pourquoi c'est vrai », exemple guidé, erreurs fréquentes, savoir-faire attendus |
 | `labo.html` | laboratoire digital : 8 bancs d'essai interactifs (canvas) |
 | `exerciseur.html` | vrai/faux (20 questions) et exercices à données aléatoires, vérification, solution |
 | `formulaire.html` | aide-mémoire imprimable, ordres de grandeur, glossaire FR–EN |
@@ -21,7 +21,8 @@ Bancs : carré qui se déforme · cercle de Mohr · éprouvette en traction · b
 
 - HTML/CSS/JS sans dépendance de build ; KaTeX (CDN cdnjs) pour les formules.
 - `js/common.js` : algèbre des tenseurs symétriques (valeurs/vecteurs propres par Jacobi, invariants, déviateur, Mohr 2D), conversions élastiques, matériaux de référence, navigation.
-- `js/cours.js`, `js/labo.js`, `js/exos.js` : une page chacun.
+- `js/labo.js` : registre des bancs (`MMC.labs.BANCS`) et `MMC.labs.mount(id, conteneur)` ; un `<div class="lab" data-banc="mohr"></div>` dans n'importe quelle page monte le banc à la demande.
+- `js/cours.js`, `js/exos.js` : calculateurs du cours, exerciseur.
 - Thème clair/sombre automatique (`prefers-color-scheme`), mobile d'abord.
 
 ## Déploiement
