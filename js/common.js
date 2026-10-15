@@ -146,7 +146,7 @@ window.MMC = (function () {
 
   // ---------- navigation commune ----------
   function nav(page) {
-    const links = [['cours.html', 'Cours'], ['labo.html', 'Laboratoire'], ['exerciseur.html', 'Exerciseur'], ['formulaire.html', 'Formulaire']];
+    const links = [['cours.html', 'Cours'], ['labo.html', 'Laboratoire'], ['exerciseur.html', 'Exerciseur'], ['formulaire.html', 'Formulaire'], ['questions.html', 'Questions']];
     const h = document.querySelector('header.top');
     if (!h) return;
     h.innerHTML = '<a class="brand" href="index.html"><span class="badge">MC</span><span><b>Mécanique des milieux continus</b><small>contraintes · déformations · élasticité — le socle du génie civil</small></span></a>' +

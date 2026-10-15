@@ -88,3 +88,17 @@ footer{max-width:860px;margin:0 auto;padding:20px 16px;color:var(--ink-3);font-s
 @media (max-width:600px){h1{font-size:1.6rem}h2{font-size:1.3rem}.brand small{display:none}nav.links a{padding:5px 8px;font-size:13px}}
 
 p,li,td{overflow-wrap:break-word}
+/* couches pédagogiques */
+.box.plain{border-left-color:var(--ink-3)}.box.read{border-left-color:var(--sig)}
+.box.plain dl,.box.read dl{margin:4px 0}.box dt{font-weight:600;margin-top:6px}.box dd{margin:0 0 0 0;color:var(--ink-2)}
+details.why{border:1px solid var(--line);border-radius:10px;margin:12px 0;background:var(--bg-2)}
+details.why summary{cursor:pointer;padding:8px 14px;font-weight:600;color:var(--accent);list-style:none}
+details.why summary::before{content:"▸ ";}details.why[open] summary::before{content:"▾ "}
+details.why summary::-webkit-details-marker{display:none}
+details.why > div{padding:0 14px 10px;border-top:1px solid var(--line)}
+.steps{counter-reset:s;margin:8px 0;padding:0;list-style:none}
+.steps li{counter-increment:s;position:relative;padding:6px 0 6px 34px;border-bottom:1px dashed var(--line)}
+.steps li:last-child{border:0}
+.steps li::before{content:counter(s);position:absolute;left:0;top:6px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.steps li b{font-family:var(--mono);font-weight:600}
+.check{list-style:none;padding:0;margin:6px 0}.check li{padding:3px 0 3px 26px;position:relative}.check li::before{content:"☐";position:absolute;left:4px;color:var(--accent-2)}
