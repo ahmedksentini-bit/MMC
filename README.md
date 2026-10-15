@@ -7,15 +7,15 @@ Site statique du cours de mécanique des milieux continus pour le génie civil, 
 | Page | Rôle |
 |---|---|
 | `index.html` | accueil, plan |
-| `cours.html` | le cours (boîte à outils + 7 chapitres), 23 figures SVG, 16 calculateurs, les 8 bancs du laboratoire insérés à l'endroit où ils servent ; par chapitre : « En clair », « Lire la formule », « Pourquoi c'est vrai », exemple guidé, erreurs fréquentes, savoir-faire attendus |
-| `labo.html` | laboratoire digital : 8 bancs d'essai interactifs (canvas) |
+| `cours.html` | le cours (boîte à outils + 11 chapitres), 23 figures SVG, 22 calculateurs, les 9 bancs du laboratoire insérés à l'endroit où ils servent ; par chapitre : « En clair », « Lire la formule », « Pourquoi c'est vrai », exemple guidé, erreurs fréquentes, savoir-faire attendus |
+| `labo.html` | laboratoire digital : 9 bancs d'essai interactifs (canvas) |
 | `exerciseur.html` | vrai/faux (20 questions) et exercices à données aléatoires, vérification, solution |
 | `formulaire.html` | aide-mémoire imprimable, ordres de grandeur, glossaire FR–EN |
 | `questions.html` | les questions qu'on n'ose pas poser, en français courant |
 
-Chapitres : 0 boîte à outils mathématiques · 1 milieu continu · 2 déformations · 3 contraintes · 4 élasticité linéaire · 5 solutions classiques (traction, flexion, torsion, Lamé, Boussinesq, Kirsch) · 6 critères (Tresca, von Mises, Rankine, Mohr-Coulomb) · 7 de la MMC à la RDM.
+Chapitres : 0 boîte à outils mathématiques · 1 milieu continu · 2 déformations · 3 contraintes · 4 élasticité linéaire · 5 solutions classiques (traction, flexion, torsion, Lamé, Boussinesq, Kirsch) · 6 critères (Tresca, von Mises, Rankine, Mohr-Coulomb) · 7 de la MMC à la RDM · 8 énergie et puissances virtuelles · 9 fluides · 10 compléments (cylindriques, Airy, Flamant, Hertz, ondes) · 11 au-delà de l'élasticité linéaire isotrope.
 
-Bancs : carré qui se déforme · cercle de Mohr · éprouvette en traction · bulbe de Boussinesq · trou de Kirsch · critères · tube de Lamé · torsion.
+Bancs : carré qui se déforme · cercle de Mohr · éprouvette en traction · bulbe de Boussinesq · trou de Kirsch · critères · tube de Lamé · torsion · poutre : énergie et flèche.
 
 ## Technique
 

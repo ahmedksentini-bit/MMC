@@ -477,6 +477,52 @@
     }
     bindAll(['s-tm', 's-td', 's-tdi', 's-tg'], drawTor);
   } };
+  BANCS['poutre'] = { n: 9, title: 'Banc 9 · Poutre : énergie, flèche et charge unité', intro: 'Poutre sur deux appuis, charge P en a. La déformée est tracée, le diagramme du moment aussi ; l\'énergie W = ∫M²/2EI est calculée, et la flèche sous la charge est obtenue de trois façons — Castigliano, charge unité, Clapeyron — qui doivent coïncider. Déplacer la charge : W est maximale au milieu.', html: `<div class="grid">
+<label>P = <span id="l-pP"></span> kN<input type="range" id="s-pP" min="1" max="100" step="1" value="20"></label>
+<label>a = <span id="l-pa"></span> m<input type="range" id="s-pa" min="0.2" max="5.8" step="0.1" value="2"></label>
+<label>L = <span id="l-pL"></span> m<input type="range" id="s-pL" min="2" max="6" step="0.5" value="6"></label>
+<label>EI = <span id="l-pEI"></span> MN·m²<input type="range" id="s-pEI" min="2" max="60" step="1" value="17"></label>
+</div>
+<canvas id="cv-poutre" width="720" height="340"></canvas>
+<div class="out" id="o-poutre"></div>`, init() {
+    const cv9 = document.getElementById('cv-poutre');
+    function drawPoutre() {
+      const P = slider('s-pP', 'l-pP', 0) * 1e3, L = slider('s-pL', 'l-pL', 1), EI = slider('s-pEI', 'l-pEI', 0) * 1e6;
+      let a = slider('s-pa', 'l-pa', 1); a = Math.min(a, L - 0.2); document.getElementById('l-pa').textContent = fmt(a, 1);
+      const b = L - a;
+      const k = C(), { ctx, W, H } = setupCanvas(cv9, 720, 340);
+      ctx.clearRect(0, 0, W, H);
+      // déformée (formules classiques), x de 0 à L
+      const v = x => x <= a ? P * b * x * (L * L - b * b - x * x) / (6 * EI * L) : P * a * (L - x) * (2 * L * x - x * x - a * a) / (6 * EI * L);
+      const M = x => x <= a ? P * b * x / L : P * a * (L - x) / L;
+      const dP = P * a * a * b * b / (3 * EI * L), Wn = P * P * a * a * b * b / (6 * EI * L);
+      // intégration numérique de M²/2EI et de M·m/EI (charge unité en a)
+      let Wi = 0, du = 0; const n = 400;
+      for (let i = 0; i < n; i++) { const x = (i + .5) * L / n, m = M(x), mu = x <= a ? b * x / L : a * (L - x) / L; Wi += m * m / (2 * EI) * L / n; du += m * mu / EI * L / n; }
+      const x0 = 50, x1 = W - 40, y0 = H * 0.32, X = x => x0 + (x1 - x0) * x / L;
+      const vmax = Math.max(dP, 1e-9), amp = Math.min(H * 0.18, 60) / vmax;
+      // appuis et poutre
+      ctx.strokeStyle = k.ink3; ctx.lineWidth = 1; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y0); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = k.ink2; [x0, x1].forEach(x => { ctx.beginPath(); ctx.moveTo(x, y0 + 2); ctx.lineTo(x - 9, y0 + 16); ctx.lineTo(x + 9, y0 + 16); ctx.closePath(); ctx.fill(); });
+      ctx.strokeStyle = k.sig; ctx.lineWidth = 3; ctx.beginPath(); for (let i = 0; i <= 100; i++) { const x = L * i / 100; i ? ctx.lineTo(X(x), y0 + v(x) * amp) : ctx.moveTo(X(x), y0 + v(x) * amp); } ctx.stroke();
+      arrow(ctx, X(a), y0 - 48, X(a), y0 - 4, k.acc, 3); text(ctx, 'P', X(a) + 8, y0 - 34, k.acc, 'left', 13);
+      text(ctx, 'δ = ' + fmt(dP * 1000, 2) + ' mm (×' + fmt(amp / 1000, 0) + ')', X(a), y0 + v(a) * amp + 18, k.sig, 'center', 12);
+      // diagramme M
+      const y1 = H * 0.72, Mmax = P * a * b / L, mh = Math.min(H * 0.22, 70);
+      ctx.strokeStyle = k.ink3; ctx.beginPath(); ctx.moveTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
+      ctx.fillStyle = 'rgba(14,116,144,.2)'; ctx.strokeStyle = k.sig; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x0, y1); ctx.lineTo(X(a), y1 + mh); ctx.lineTo(x1, y1); ctx.closePath(); ctx.fill(); ctx.stroke();
+      text(ctx, 'M max = Pab/L = ' + fmt(Mmax / 1e3, 1) + ' kN·m', X(a), y1 + mh + 16, k.sig, 'center', 12);
+      text(ctx, 'W = ∫ M²/2EI dx = ' + fmt(Wn, 2) + ' J', x1, y1 - 8, k.ink2, 'right', 12);
+      rows('o-poutre', [
+        ['énergie W (formule / intégration numérique)', fmt(Wn, 3) + ' / ' + fmt(Wi, 3) + ' J'],
+        ['flèche sous P : Castigliano ∂W/∂P = Pa²b²/(3EIL)', fmt(dP * 1000, 3) + ' mm'],
+        ['charge unité ∫ M·m/EI dx', fmt(du * 1000, 3) + ' mm'],
+        ['Clapeyron ½Pδ', fmt(0.5 * P * dP, 3) + ' J = W'],
+        ['si la charge était posée brusquement', 'énergie fournie Pδ = 2W : l\'excédent part en vibration, flèche dynamique ≈ 2δ']
+      ]);
+    }
+    bindAll(['s-pP', 's-pa', 's-pL', 's-pEI'], drawPoutre);
+  } };
 
   function mount(id, container) {
     const b = BANCS[id]; if (!b || !container || container.dataset.mounted) return;

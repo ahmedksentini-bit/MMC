@@ -242,6 +242,76 @@
     ]);
   });
 
+  // ---- ch8 : énergie
+  MMC.bind('c-ener', () => {
+    const type = document.getElementById('en-type').value, L = num('en-L') * 1000, a = Math.min(num('en-a') * 1000, L), P = num('en-P') * 1000, E = num('en-E'), I = num('en-I') * 1e4;
+    let W, d, Mmax, where;
+    if (type === 'console') { W = P * P * L ** 3 / (6 * E * I); d = P * L ** 3 / (3 * E * I); Mmax = P * L; where = 'à l\'extrémité'; }
+    else { const b = L - a; W = P * P * a * a * b * b / (6 * E * I * L); d = P * a * a * b * b / (3 * E * I * L); Mmax = P * a * b / L; where = 'sous la charge'; }
+    rows('en-out', [
+      ['moment maximal', fmt(Mmax / 1e6, 2) + ' kN·m'],
+      ['énergie W = ∫ M²/(2EI) dx', fmt(W / 1000, 3) + ' J'],
+      ['flèche ' + where + ' = ∂W/∂P (Castigliano)', fmt(d, 2) + ' mm'],
+      ['Clapeyron : ½ P δ', fmt(0.5 * P * d / 1000, 3) + ' J = W (vérification)'],
+      ['raideur apparente P/δ', fmt(P / d, 1) + ' N/mm'],
+      [type === 'console' ? 'formule' : 'formule', type === 'console' ? 'δ = PL³/(3EI)' : 'δ = Pa²b²/(3EIL)']
+    ]);
+  });
+
+  // ---- ch9 : fluide
+  MMC.bind('c-flu', () => {
+    const mode = document.getElementById('fl-mode').value, rho = num('fl-rho'), z = num('fl-z'), mu = num('fl-mu'), V = num('fl-V'), h = num('fl-h') / 1000, th = num('fl-th') * deg;
+    const n = [Math.cos(th), Math.sin(th), 0];
+    if (mode === 'repos') {
+      const p = rho * 9.81 * z / 1000; // kPa
+      const t = traction(sym(-p, -p, -p, 0, 0, 0), n);
+      rows('fl-out', [['p = ρ g z', fmt(p, 2) + ' kPa'], ['tenseur σ = −p I', 'diag(' + fmt(-p, 2) + ', ' + fmt(-p, 2) + ', ' + fmt(-p, 2) + ')'], ['sur la facette à ' + fmt(th / deg, 0) + '° : σ<sub>n</sub>, τ', fmt(t.sn, 2) + ' kPa ; ' + fmt(t.tau, 2) + ' kPa'], ['lecture', 'même pression sur toute facette, cisaillement nul : Pascal, cercle de Mohr réduit à un point']]);
+    } else {
+      const dg = V / h, tau = mu * dg; // Pa
+      const t = traction(sym(0, 0, 0, tau, 0, 0), n);
+      rows('fl-out', [['taux de cisaillement γ̇ = V/h', fmt(dg, 1) + ' s⁻¹'], ['τ = μ γ̇ (loi de Newton)', fmt(tau, 3) + ' Pa'], ['tenseur (hors pression)', 'σ<sub>xy</sub> = ' + fmt(tau, 3) + ' Pa, cisaillement pur'], ['sur la facette à ' + fmt(th / deg, 0) + '° : σ<sub>n</sub>, τ', fmt(t.sn, 3) + ' ; ' + fmt(t.tau, 3) + ' Pa'], ['contraintes principales ± τ à 45°', '± ' + fmt(tau, 3) + ' Pa — comme la torsion d\'un arbre'], ['pour du bitume à 60 °C (μ ≈ 200 Pa·s)', 'τ = ' + fmt(200 * dg, 0) + ' Pa']]);
+    }
+  });
+
+  // ---- ch10 : cavité
+  MMC.bind('c-cav', () => {
+    const E = num('cv-E'), nu = num('cv-nu'), p0 = num('cv-p0'), p = num('cv-p'), a = num('cv-a'), r = Math.max(num('cv-r'), num('cv-a'));
+    const G = E / (2 * (1 + nu)) * 1000; // kPa
+    const dp = p - p0, ua = dp * a / (2 * G), dVV = 2 * ua / a;
+    const sr = p0 + dp * (a / r) ** 2, st = p0 - dp * (a / r) ** 2;
+    rows('cv-out', [
+      ['G = E<sub>M</sub>/2(1+ν)', fmt(G / 1000, 2) + ' MPa'],
+      ['déplacement de la paroi u<sub>a</sub> = (p − p₀) a / (2G)', fmt(ua, 3) + ' mm'],
+      ['ΔV/V de la cavité ≈ 2u<sub>a</sub>/a', fmt(dVV * 100, 2) + ' %'],
+      ['à r = ' + fmt(r, 0) + ' mm : σ<sub>r</sub>, σ<sub>θ</sub>', fmt(sr, 1) + ' ; ' + fmt(st, 1) + ' kPa (compressions +)'],
+      ['τ<sub>max</sub> à la paroi = p − p₀', fmt(dp, 1) + ' kPa — le sol plastifie quand il atteint c<sub>u</sub>'],
+      ['lecture', 'σ<sub>r</sub> + σ<sub>θ</sub> = 2p₀ partout : l\'expansion ne change pas la contrainte moyenne, elle cisaille']
+    ]);
+  });
+
+  // ---- ch10 : Hertz
+  MMC.bind('c-hertz', () => {
+    const geo = document.getElementById('hz-geo').value, P = num('hz-P') * 1000, R = num('hz-R'), E1 = num('hz-E1'), n1 = num('hz-n1'), E2 = num('hz-E2'), n2 = num('hz-n2');
+    const Es = 1 / ((1 - n1 * n1) / E1 + (1 - n2 * n2) / E2);
+    if (geo === 'sph') {
+      const a = Math.cbrt(3 * P * R / (4 * Es)), p0 = 3 * P / (2 * Math.PI * a * a);
+      rows('hz-out', [['E*', fmt(Es, 0) + ' MPa'], ['rayon de contact a', fmt(a, 2) + ' mm'], ['pression maximale p₀', fmt(p0, 0) + ' MPa'], ['pression moyenne', fmt(P / (Math.PI * a * a), 0) + ' MPa'], ['τ<sub>max</sub> ≈ 0,31 p₀ à z ≈ 0,48 a', fmt(0.31 * p0, 0) + ' MPa à ' + fmt(0.48 * a, 2) + ' mm sous la surface'], ['rapprochement des centres', fmt(a * a / R, 4) + ' mm']]);
+    } else {
+      const Pm = P / 1000; // N/mm
+      const b = Math.sqrt(4 * Pm * R / (Math.PI * Es)), p0 = 2 * Pm / (Math.PI * b);
+      rows('hz-out', [['E*', fmt(Es, 0) + ' MPa'], ['demi-largeur de contact b', fmt(b, 3) + ' mm'], ['pression maximale p₀', fmt(p0, 0) + ' MPa'], ['pression moyenne', fmt(Pm / (2 * b), 0) + ' MPa'], ['τ<sub>max</sub> = 0,30 p₀ à z ≈ 0,78 b', fmt(0.3 * p0, 0) + ' MPa à ' + fmt(0.78 * b, 3) + ' mm sous la surface']]);
+    }
+  });
+
+  // ---- ch10 : ondes
+  MMC.bind('c-wave', () => {
+    const E = num('wv-E'), nu = num('wv-nu'), rho = num('wv-rho'), vsIn = num('wv-vs', 0);
+    const c = constants({ E, nu });
+    const vs = vsIn > 0 ? vsIn : Math.sqrt(c.G * 1e6 / rho), vp = vs * Math.sqrt(2 * (1 - nu) / (1 - 2 * nu));
+    const G0 = rho * vs * vs / 1e6;
+    rows('wv-out', [['G', fmt(c.G, 0) + ' MPa' + (vsIn > 0 ? ' (de E, ν) ; G₀ = ρV<sub>S</sub>² = ' + fmt(G0, 0) + ' MPa (mesuré)' : '')], ['V<sub>S</sub> = √(G/ρ)', fmt(vs, 0) + ' m/s'], ['V<sub>P</sub>', fmt(vp, 0) + ' m/s'], ['V<sub>P</sub>/V<sub>S</sub> = √[2(1−ν)/(1−2ν)]', fmt(vp / vs, 3) + ' (ν → 0,5 : V<sub>P</sub>/V<sub>S</sub> → ∞, V<sub>P</sub> devient celle de l\'eau)'], ['temps pour traverser 30 m (V<sub>S</sub>)', fmt(30 / vs * 1000, 1) + ' ms'], ['classe de sol EC8 pour V<sub>S,30</sub> = V<sub>S</sub>', vs > 800 ? 'A (rocher)' : vs > 360 ? 'B' : vs > 180 ? 'C' : 'D']]);
+  });
+
   // ---- ch7 : RDM -> principales
   MMC.bind('c-rdm', () => {
     const s = num('rd-s'), t = num('rd-t'), ft = num('rd-ft');

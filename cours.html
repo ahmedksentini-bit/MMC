@@ -26,6 +26,10 @@
 <li><a href="#ch5">Le problème d'élasticité et ses solutions classiques</a></li>
 <li><a href="#ch6">Limite élastique et critères</a></li>
 <li><a href="#ch7">De la MMC à la RDM</a></li>
+<li><a href="#ch8">Énergie, travail et puissances virtuelles</a></li>
+<li><a href="#ch9">Les fluides : la même mécanique</a></li>
+<li><a href="#ch10">Compléments d'élasticité</a></li>
+<li><a href="#ch11">Au-delà de l'élasticité linéaire isotrope</a></li>
 </ol></details></div>
 
 <h2 id="ch0">Avant de commencer</h2>
@@ -572,6 +576,154 @@ Un critère ramène six composantes à un nombre. Métaux : le cisaillement déc
 <div class="box key"><b class="t">À retenir</b>
 La RDM est la MMC intégrée sur une section et assortie de l'hypothèse de Navier-Bernoulli. \(N/A\), \(My/I\), \(TQ/Ib\) sont des composantes du tenseur des contraintes, et le cercle de Mohr en donne les directions principales — celles des fissures.</div>
 <div class="chap-links"><a class="btn" href="exerciseur.html#ch7">Exercices du chapitre</a></div>
+
+<h2 id="ch8">8 · Énergie, travail et puissances virtuelles</h2>
+<div class="box plain"><b class="t">En clair</b>
+<dl><dt>Énergie de déformation</dt><dd>le travail que les charges ont fourni pour déformer le solide, stocké comme dans un ressort, et rendu quand on décharge (élasticité).</dd>
+<dt>Méthodes énergétiques</dt><dd>au lieu de résoudre les quinze équations, on écrit que l'énergie est bien comptée. On obtient un déplacement ou une réaction en une intégrale. C'est l'outil quotidien de la théorie des structures, et la base des éléments finis.</dd>
+<dt>Virtuel</dt><dd>imaginaire mais compatible : un petit déplacement qu'on <i>pourrait</i> donner au solide sans violer ses appuis. On ne l'applique pas, on s'en sert pour écrire une équation.</dd></dl></div>
+<h3>Le travail se stocke : énergie de déformation</h3>
+<p>Le chapitre 4 a donné l'énergie par unité de volume, \(w=\tfrac12\boldsymbol\sigma:\boldsymbol\varepsilon\). Sur tout le solide, \(W=\int_V w\,dV\). Pour une poutre, où le tenseur se réduit au torseur, l'intégrale sur la section se fait une fois pour toutes :</p>
+<div class="formula">\[W=\int_0^L\left(\frac{N^2}{2EA}+\frac{M^2}{2EI}+\frac{T^2}{2GA'}+\frac{M_t^2}{2GJ}\right)dx\]<span class="ref">\(A'\) : section réduite d'effort tranchant (\(5A/6\) pour un rectangle) — terme souvent négligeable</span></div>
+<p>En régime linéaire, les charges croissent de zéro à leur valeur finale en même temps que les déplacements : le travail extérieur est l'aire d'un triangle, pas d'un rectangle. C'est le <b>théorème de Clapeyron</b> :</p>
+<div class="formula">\[W = \frac12\sum_i F_i\,u_i\]<span class="ref">\(u_i\) : déplacement du point d'application de \(F_i\), dans sa direction</span></div>
+<div class="box read"><b class="t">Lire la formule</b>Le ½ n'est pas une convention : il dit que la force a été nulle au début et pleine à la fin. Une charge posée brutalement (sans le ½) fournit deux fois plus d'énergie que la poutre n'en stocke à l'équilibre : l'excédent part en vibrations — c'est le coefficient dynamique 2 d'une charge appliquée instantanément.</div>
+<h3>Castigliano et Menabrea : dériver l'énergie</h3>
+<p>Si l'on sait écrire \(W\) en fonction des charges, le déplacement sous une charge est la dérivée de \(W\) par rapport à cette charge :</p>
+<div class="formula">\[u_i=\frac{\partial W}{\partial F_i}\qquad\text{(Castigliano)}\qquad\qquad \frac{\partial W}{\partial X}=0\qquad\text{(Menabrea, pour une réaction hyperstatique } X)\]</div>
+<p>Menabrea dit qu'une structure hyperstatique choisit, parmi tous les systèmes d'efforts en équilibre, celui qui stocke le <i>moins</i> d'énergie. C'est ainsi qu'on calcule les réactions d'une poutre continue ou d'un portique sans écrire les équations de compatibilité.</p>
+<details class="why"><summary>Pourquoi c'est vrai — Castigliano en trois lignes</summary><div>
+<p>Soit \(W(F_1,\ldots,F_n)\). Augmentons \(F_i\) de \(dF_i\) : les déplacements changent, et le travail supplémentaire des charges, au premier ordre, est \(dF_i\,u_i\) (la petite force \(dF_i\) travaille sur le déplacement existant ; les autres forces, constantes, travaillent sur les petits déplacements induits, mais Clapeyron montre que ces deux contributions se compensent exactement en régime linéaire). Donc \(dW=u_i\,dF_i\), soit \(u_i=\partial W/\partial F_i\). Si la force \(X\) est une réaction d'appui fixe, son déplacement est nul : \(\partial W/\partial X=0\), c'est Menabrea.</p></div></details>
+<h3>Le principe des puissances virtuelles</h3>
+<p>Prenons un champ de déplacement virtuel \(\delta\vec u\) quelconque, nul sur les appuis. Multiplions les équations d'équilibre par \(\delta\vec u\) et intégrons sur le solide : après une intégration par parties,</p>
+<div class="formula">\[\int_V\boldsymbol\sigma:\delta\boldsymbol\varepsilon\,dV=\int_V\vec f\cdot\delta\vec u\,dV+\int_S\vec F_s\cdot\delta\vec u\,dS\qquad\text{pour tout }\delta\vec u\text{ admissible}\]<span class="ref">travail virtuel des efforts intérieurs = travail virtuel des efforts extérieurs</span></div>
+<p>Cette égalité est <i>équivalente</i> aux équations d'équilibre : un champ de contrainte qui la vérifie pour tous les \(\delta\vec u\) est en équilibre. Elle a deux usages immenses :</p>
+<ul>
+<li>la <b>méthode des forces virtuelles</b> (charge unité) de la RDM : pour trouver le déplacement en un point, on y applique une force virtuelle unité, qui crée un moment \(m(x)\), et le déplacement réel vaut \(\delta=\int M\,m/(EI)\,dx\) ;</li>
+<li>les <b>éléments finis</b> : on remplace « pour tout \(\delta\vec u\) » par « pour les fonctions de forme de chaque nœud », et l'intégrale devient le système \([K]\{U\}=\{F\}\). Toute la méthode tient dans cette ligne.</li>
+</ul>
+<p>Un dernier résultat utile, le <b>théorème de réciprocité de Maxwell-Betti</b> : le déplacement en \(i\) dû à une force unité en \(j\) est égal au déplacement en \(j\) dû à une force unité en \(i\). D'où la symétrie de la matrice de raideur, et les lignes d'influence.</p>
+<div class="calc" id="c-ener"><p class="ct">Énergie, Clapeyron et Castigliano sur une poutre</p>
+<div class="grid">
+<label>Poutre<select id="en-type"><option value="console">console, charge à l'extrémité</option><option value="appuyee">sur deux appuis, charge en a</option></select></label>
+<label>L (m)<input id="en-L" value="4"></label><label>a (m, depuis l'appui gauche)<input id="en-a" value="1.5"></label><label>P (kN)<input id="en-P" value="20"></label><label>E (MPa)<input id="en-E" value="210000"></label><label>I (cm⁴)<input id="en-I" value="8356"></label>
+</div><div class="out" id="en-out"></div></div>
+<div class="lab" data-banc="poutre"></div>
+<div class="box"><b class="t">Exemple guidé · la console</b>
+<p>Console de longueur \(L\), charge \(P\) à l'extrémité, raideur \(EI\). Flèche sous la charge ?</p>
+<ol class="steps">
+<li>Moment : \(M(x)=-P(L-x)\), \(x\) compté depuis l'encastrement.</li>
+<li>Énergie : \(W=\int_0^L\dfrac{P^2(L-x)^2}{2EI}dx=\) <b>\(\dfrac{P^2L^3}{6EI}\)</b>.</li>
+<li>Castigliano : \(\delta=\partial W/\partial P=\) <b>\(\dfrac{PL^3}{3EI}\)</b> — le résultat classique, sans intégrer deux fois la courbure.</li>
+<li>Vérification par Clapeyron : \(W=\tfrac12P\delta=\tfrac12P\cdot PL^3/3EI=P^2L^3/6EI\). Cohérent.</li>
+<li>Charge unité : \(m(x)=-(L-x)\), \(\delta=\int Mm/EI=\int P(L-x)^2/EI=PL^3/3EI\). Trois méthodes, un résultat.</li>
+</ol></div>
+<div class="box warn"><b class="t">Erreurs fréquentes</b>Oublier le ½ de Clapeyron ; dériver par rapport à une force qui n'est pas indépendante des autres (deux charges égales : il faut les distinguer avant de dériver) ; chercher un déplacement là où il n'y a pas de force — on ajoute une force fictive, on dérive, puis on l'annule ; oublier que Castigliano donne le déplacement <i>dans la direction de la force</i>.</div>
+<details class="why"><summary>Ce qu'il faut savoir faire à l'examen</summary><div><ul class="check">
+<li>Écrire l'énergie d'une poutre en \(M^2/2EI\) et la calculer.</li>
+<li>Obtenir une flèche par Castigliano et par la charge unité.</li>
+<li>Déterminer une réaction hyperstatique par Menabrea.</li>
+<li>Énoncer le PPV et dire pourquoi il équivaut à l'équilibre.</li></ul></div></details>
+<div class="chap-links"><a class="btn" href="exerciseur.html#ch8">Exercices du chapitre</a></div>
+
+<h2 id="ch9">9 · Les fluides : la même mécanique</h2>
+<div class="box plain"><b class="t">En clair</b>
+<dl><dt>Un fluide</dt><dd>un milieu continu qui ne résiste pas au cisaillement <i>au repos</i> : on peut le déformer indéfiniment sans effort tant qu'on va lentement. Il résiste au cisaillement seulement quand il s'écoule, et d'autant plus qu'il s'écoule vite — c'est la viscosité.</dd>
+<dt>Ce qui change par rapport au solide</dt><dd>la contrainte ne dépend plus de la déformation (combien on a bougé) mais de la <i>vitesse</i> de déformation (à quelle vitesse on bouge). Tout le reste — tenseur, équilibre, Mohr — est identique.</dd></dl></div>
+<h3>Suivre la matière ou regarder un point fixe</h3>
+<p>Dans un fluide, suivre chaque particule est impraticable : on décrit la vitesse \(\vec v(\vec x,t)\) en chaque point fixe de l'espace (description eulérienne, ch. 1). La variation d'une grandeur <i>pour la particule qui passe</i> en ce point combine la variation locale et le transport par l'écoulement :</p>
+<div class="formula">\[\frac{D}{Dt}=\frac{\partial}{\partial t}+\vec v\cdot\nabla\qquad\text{(dérivée particulaire)}\]</div>
+<p>La conservation de la masse s'écrit \(\partial\rho/\partial t+\mathrm{div}(\rho\vec v)=0\) ; pour un fluide incompressible, \(\mathrm{div}\,\vec v=0\) — ce qui entre d'un côté d'un tube de courant ressort de l'autre : c'est l'équation de continuité \(Q=vA=\) constante de l'hydraulique.</p>
+<h3>Taux de déformation et loi de Newton</h3>
+<p>Remplaçons le déplacement par la vitesse dans la formule du chapitre 2 : le <b>tenseur des taux de déformation</b> est \(\mathbf D=\tfrac12(\nabla\vec v+\nabla\vec v^{\mathsf T})\), en s⁻¹. Un fluide newtonien relie la contrainte à \(\mathbf D\) comme Hooke reliait \(\boldsymbol\sigma\) à \(\boldsymbol\varepsilon\) :</p>
+<div class="formula">\[\boldsymbol\sigma=-p\,\mathbf I+2\mu\,\mathbf D\qquad\text{(incompressible)}\]<span class="ref">\(p\) pression, \(\mu\) viscosité dynamique (eau : 10⁻³ Pa·s ; bitume à 60 °C : 10²–10³ Pa·s)</span></div>
+<p>Au repos, \(\mathbf D=0\) : \(\boldsymbol\sigma=-p\,\mathbf I\). Le vecteur contrainte sur <i>toute</i> facette est \(-p\,\vec n\), purement normal : c'est le principe de Pascal, et le cercle de Mohr est réduit à un point. L'équilibre \(\mathrm{div}\,\boldsymbol\sigma+\rho\vec g=0\) donne alors \(-\nabla p+\rho\vec g=0\), soit \(p=\rho g z\) : l'hydrostatique est le \(\sigma_v=\gamma z\) du chapitre 3 avec \(K_0=1\).</p>
+<div class="calc" id="c-flu"><p class="ct">Le même tenseur, un fluide au repos ou en écoulement de Couette</p>
+<div class="grid">
+<label>Situation<select id="fl-mode"><option value="repos">au repos, profondeur z</option><option value="couette">Couette : plaque mobile à V, épaisseur h</option></select></label>
+<label>ρ (kg/m³)<input id="fl-rho" value="1000"></label><label>z (m)<input id="fl-z" value="3"></label><label>μ (Pa·s)<input id="fl-mu" value="0.001"></label><label>V (m/s)<input id="fl-V" value="1"></label><label>h (mm)<input id="fl-h" value="10"></label>
+<label>facette : angle de n (°)<input id="fl-th" value="35"></label>
+</div><div class="out" id="fl-out"></div></div>
+<h3>Navier-Stokes : Navier avec des vitesses</h3>
+<p>Portons la loi de Newton dans l'équation du mouvement \(\rho\,D\vec v/Dt=\mathrm{div}\,\boldsymbol\sigma+\rho\vec g\) :</p>
+<div class="formula">\[\rho\left(\frac{\partial\vec v}{\partial t}+\vec v\cdot\nabla\vec v\right)=-\nabla p+\mu\Delta\vec v+\rho\vec g\]</div>
+<p>C'est l'équivalent de l'équation de Navier du chapitre 5, avec \(\mu\Delta\vec v\) à la place de \(\mu\Delta\vec u\). Sans viscosité (Euler), intégrée le long d'une ligne de courant en régime permanent, elle donne <b>Bernoulli</b>, \(p+\rho gz+\tfrac12\rho v^2=\) constante — l'équivalent de Clapeyron pour les fluides : la même énergie, comptée autrement. Avec viscosité dans une conduite, elle donne Poiseuille, puis, via l'expérience, Darcy-Weisbach. Tout cela est le cours de mécanique des fluides : <a href="https://mecaflu.ksr-infra.org">mecaflu.ksr-infra.org</a>.</p>
+<div class="tw"><table><tr><th></th><th>Solide élastique</th><th>Fluide newtonien</th></tr>
+<tr><td>Description</td><td>lagrangienne (on suit la matière)</td><td>eulérienne (on regarde un point)</td></tr>
+<tr><td>Cinématique</td><td>\(\boldsymbol\varepsilon=\tfrac12(\nabla\vec u+\nabla\vec u^{\mathsf T})\)</td><td>\(\mathbf D=\tfrac12(\nabla\vec v+\nabla\vec v^{\mathsf T})\)</td></tr>
+<tr><td>Loi de comportement</td><td>\(\boldsymbol\sigma=\lambda\,\mathrm{tr}\,\boldsymbol\varepsilon\,\mathbf I+2\mu\boldsymbol\varepsilon\)</td><td>\(\boldsymbol\sigma=-p\mathbf I+2\mu\mathbf D\)</td></tr>
+<tr><td>Constantes</td><td>\(E,\nu\) (ou \(\lambda,\mu\))</td><td>\(\mu\) (et \(\rho\))</td></tr>
+<tr><td>Équation du champ</td><td>Navier</td><td>Navier-Stokes</td></tr>
+<tr><td>Au repos</td><td>\(\sigma_v=\gamma z\), \(\sigma_h=K_0\sigma_v\)</td><td>\(p=\rho gz\) dans toutes les directions</td></tr>
+<tr><td>Énergie</td><td>Clapeyron</td><td>Bernoulli</td></tr>
+<tr><td>Cisaillement</td><td>\(\tau=G\gamma\)</td><td>\(\tau=\mu\,\dot\gamma\)</td></tr></table></div>
+<div class="box bridge"><b class="t">Entre les deux</b>Un sol saturé est un solide (le squelette) traversé par un fluide (l'eau) : les contraintes totales se partagent en contraintes effectives sur le squelette et pression sur l'eau — Terzaghi, \(\sigma'=\sigma-u\). Un enrobé est un solide à chaud et presque un fluide à très chaud : viscoélastique (ch. 11). Le béton frais est un fluide à seuil. La MMC est le seul langage qui couvre les trois.</div>
+<div class="box key"><b class="t">À retenir</b>Même tenseur, même équilibre. Le fluide remplace \(\boldsymbol\varepsilon\) par \(\mathbf D\) et \(E,\nu\) par \(\mu\). Au repos : \(\boldsymbol\sigma=-p\mathbf I\), pression identique sur toute facette. Navier-Stokes est Navier écrit en vitesses.</div>
+
+<h2 id="ch10">10 · Compléments d'élasticité</h2>
+<p>Quatre outils que les livres de référence développent et que le génie civil utilise : les coordonnées cylindriques (tubes, pieux, pressiomètre), la fonction d'Airy (problèmes plans), le contact de Hertz (roue, rouleau, appui) et les ondes élastiques (sismique, géophysique).</p>
+<h3>Coordonnées cylindriques et expansion de cavité</h3>
+<p>Dès qu'il y a un axe — tube, pieu, forage, cheminée — on écrit les équations en \((r,\theta,z)\). Les déformations et l'équilibre deviennent :</p>
+<div class="formula">\[\varepsilon_{rr}=\frac{\partial u_r}{\partial r},\quad \varepsilon_{\theta\theta}=\frac{u_r}{r}+\frac1r\frac{\partial u_\theta}{\partial\theta},\quad \varepsilon_{zz}=\frac{\partial u_z}{\partial z},\quad \gamma_{r\theta}=\frac1r\frac{\partial u_r}{\partial\theta}+\frac{\partial u_\theta}{\partial r}-\frac{u_\theta}{r}\]</div>
+<div class="formula">\[\frac{\partial\sigma_{rr}}{\partial r}+\frac1r\frac{\partial\sigma_{r\theta}}{\partial\theta}+\frac{\partial\sigma_{rz}}{\partial z}+\frac{\sigma_{rr}-\sigma_{\theta\theta}}{r}+f_r=0\]<span class="ref">le terme \((\sigma_{rr}-\sigma_{\theta\theta})/r\) n'a pas d'équivalent cartésien : il vient de ce que les faces d'un élément en \(r\) et \(r+dr\) n'ont pas la même aire</span></div>
+<p>Le terme \(u_r/r\) dans \(\varepsilon_{\theta\theta}\) dit qu'un cercle de rayon \(r\) qui gonfle de \(u_r\) voit son périmètre croître de \(2\pi u_r\), soit \(u_r/r\) en relatif — sans qu'aucun point ne se déplace tangentiellement. En <b>axisymétrie</b> (\(u_\theta=0\), rien ne dépend de \(\theta\) ni de \(z\)), l'équilibre et Hooke donnent \(u_r=Ar+B/r\) : c'est la solution de Lamé du chapitre 5, et c'est la même qui décrit l'<b>expansion d'une cavité cylindrique</b> dans un sol — le pressiomètre. Tant que le sol reste élastique, \(p-p_0=G\,\Delta V/V\) : la pente de la courbe pressiométrique mesure le module de cisaillement, d'où \(E_M=2(1+\nu)\,V\,dp/dV\) du chapitre 3 de <a href="https://fond.ksr-infra.org">fond</a>. Quand le sol plastifie autour de la sonde, la pression tend vers la pression limite \(p_l\).</p>
+<p>En sphériques, la cavité sous pression donne \(\sigma_r=A-B/r^3\), \(\sigma_\theta=A+B/(2r^3)\) : la contrainte décroît en \(1/r^3\) au lieu de \(1/r^2\), et c'est la solution de la pointe d'un pieu ou d'un cône de pénétromètre en première approximation.</p>
+<div class="calc" id="c-cav"><p class="ct">Expansion élastique d'une cavité cylindrique (pressiomètre)</p>
+<div class="grid">
+<label>E<sub>M</sub> (MPa)<input id="cv-E" value="12"></label><label>ν<input id="cv-nu" value="0.33"></label><label>p<sub>0</sub> (kPa)<input id="cv-p0" value="60"></label><label>pression appliquée p (kPa)<input id="cv-p" value="400"></label><label>rayon de la sonde a (mm)<input id="cv-a" value="30"></label><label>distance r (mm)<input id="cv-r" value="90"></label>
+</div><div class="out" id="cv-out"></div></div>
+<h3>La fonction d'Airy : tous les problèmes plans en une fonction</h3>
+<p>En contraintes planes ou déformations planes sans force de volume, posons \(\sigma_{xx}=\partial^2\phi/\partial y^2\), \(\sigma_{yy}=\partial^2\phi/\partial x^2\), \(\sigma_{xy}=-\partial^2\phi/\partial x\partial y\). Les deux équations d'équilibre sont alors automatiquement satisfaites, et la compatibilité impose une seule équation :</p>
+<div class="formula">\[\Delta\Delta\phi=\frac{\partial^4\phi}{\partial x^4}+2\frac{\partial^4\phi}{\partial x^2\partial y^2}+\frac{\partial^4\phi}{\partial y^4}=0\]<span class="ref">équation biharmonique — tout polynôme de degré ≤ 3 la vérifie</span></div>
+<p>Résoudre un problème plan revient à trouver un \(\phi\) biharmonique qui respecte les conditions aux limites. Deux exemples qui comptent :</p>
+<ul>
+<li><b>La console chargée en bout</b> (Timoshenko) : \(\phi=-\dfrac{P}{2I}\left(xy^3/3-h^2xy/4\right)\) donne \(\sigma_{xx}=-Pxy/I\) et \(\sigma_{xy}=-\dfrac{P}{2I}\left(\dfrac{h^2}{4}-y^2\right)\) : la flexion de la RDM <i>et</i> la parabole de Jourawski, exactes, sans hypothèse de Navier-Bernoulli. La RDM était une solution d'élasticité sans le savoir.</li>
+<li><b>Flamant</b> : charge linéique \(P\) sur le bord d'un demi-plan, \(\phi=-(P/\pi)\,r\theta\sin\theta\), d'où \(\sigma_{rr}=-\dfrac{2P\cos\theta}{\pi r}\), \(\sigma_{\theta\theta}=\sigma_{r\theta}=0\) : la contrainte est purement radiale, et \(\sigma_z=2Pz^3/\pi R^4\) — c'est la formule du banc de Boussinesq en charge linéique, et l'origine de la solution de la bande uniforme sous un remblai ou une semelle filante.</li>
+</ul>
+<h3>Contact de Hertz</h3>
+<p>Deux solides courbes pressés l'un contre l'autre se touchent sur une petite surface où la pression est énorme : une roue sur un rail, un rouleau de compacteur sur une couche, une bille d'appui, un granulat contre un autre. Hertz (1882) a résolu le problème élastique :</p>
+<div class="formula">\[\frac1{E^*}=\frac{1-\nu_1^2}{E_1}+\frac{1-\nu_2^2}{E_2},\qquad \frac1R=\frac1{R_1}+\frac1{R_2}\]</div>
+<div class="formula">\[\text{sphère : } a=\left(\frac{3PR}{4E^*}\right)^{1/3},\ p_0=\frac{3P}{2\pi a^2}\qquad\quad \text{cylindre (par m) : } b=\sqrt{\frac{4PR}{\pi E^*}},\ p_0=\frac{2P}{\pi b}\]<span class="ref">\(a\), \(b\) : rayon ou demi-largeur de contact ; \(p_0\) : pression maximale au centre, 1,5 (sphère) ou 1,27 (cylindre) fois la moyenne</span></div>
+<p>La contrainte de cisaillement maximale n'est pas en surface mais à une profondeur de 0,5 à 0,8 fois \(a\) : c'est là que naissent l'écaillage des rails et des roulements, et c'est pour cela que les couches de roulement d'une chaussée sont dimensionnées en fatigue sous la roue plutôt qu'en pression de contact.</p>
+<div class="calc" id="c-hertz"><p class="ct">Contact de Hertz</p>
+<div class="grid">
+<label>Géométrie<select id="hz-geo"><option value="sph">sphère sur plan</option><option value="cyl">cylindre sur plan (par mètre)</option></select></label>
+<label>P (kN, ou kN/m)<input id="hz-P" value="100"></label><label>R (mm)<input id="hz-R" value="460"></label>
+<label>E<sub>1</sub> (MPa)<input id="hz-E1" value="210000"></label><label>ν<sub>1</sub><input id="hz-n1" value="0.3"></label><label>E<sub>2</sub> (MPa)<input id="hz-E2" value="210000"></label><label>ν<sub>2</sub><input id="hz-n2" value="0.3"></label>
+</div><div class="out" id="hz-out"></div>
+<p class="muted">Valeurs par défaut : une roue de train (R = 460 mm) sur un rail, 100 kN par roue.</p></div>
+<h3>Les ondes élastiques</h3>
+<p>Ajoutons l'inertie à l'équation de Navier : \(\rho\,\ddot{\vec u}=(\lambda+\mu)\nabla(\mathrm{div}\,\vec u)+\mu\Delta\vec u\). Elle admet deux familles d'ondes planes, à deux vitesses :</p>
+<div class="formula">\[V_P=\sqrt{\frac{\lambda+2\mu}{\rho}}=\sqrt{\frac{E(1-\nu)}{\rho(1+\nu)(1-2\nu)}}\qquad V_S=\sqrt{\frac{\mu}{\rho}}=\sqrt{\frac{G}{\rho}}\qquad \frac{V_P}{V_S}=\sqrt{\frac{2(1-\nu)}{1-2\nu}}\]</div>
+<p>L'onde <b>P</b> (primaire, de compression) fait vibrer la matière dans le sens de propagation ; l'onde <b>S</b> (secondaire, de cisaillement) perpendiculairement. P est toujours plus rapide — d'où son nom — et S n'existe pas dans les fluides (\(\mu=0\)). Dans un sol saturé, \(V_P\) est celle de l'eau (1 500 m/s) et ne dit rien du squelette ; \(V_S\) ne voit que le squelette : c'est pourquoi la classe de sol sismique (Eurocode 8) et la géophysique utilisent \(V_S\), et pourquoi \(G_0=\rho V_S^2\) est le module de cisaillement aux petites déformations du chapitre 2 de <a href="https://fond.ksr-infra.org">fond</a>.</p>
+<div class="tw"><table><tr><th>Matériau</th><th>V<sub>P</sub> (m/s)</th><th>V<sub>S</sub> (m/s)</th></tr>
+<tr><td>Acier</td><td>5 900</td><td>3 200</td></tr><tr><td>Béton</td><td>3 500–4 500</td><td>2 000–2 600</td></tr><tr><td>Rocher sain</td><td>3 000–6 000</td><td>1 500–3 500</td></tr><tr><td>Sol compact</td><td>500–1 500 (sec)</td><td>250–600</td></tr><tr><td>Sol meuble</td><td>300–700 (sec) / 1 500 (saturé)</td><td>100–250</td></tr><tr><td>Eau</td><td>1 500</td><td>—</td></tr></table></div>
+<div class="calc" id="c-wave"><p class="ct">Vitesses des ondes P et S</p>
+<div class="grid">
+<label>E (MPa)<input id="wv-E" value="33000"></label><label>ν<input id="wv-nu" value="0.2"></label><label>ρ (kg/m³)<input id="wv-rho" value="2400"></label><label>ou V<sub>S</sub> mesurée (m/s, vide = calculée)<input id="wv-vs" value=""></label>
+</div><div class="out" id="wv-out"></div></div>
+<div class="box key"><b class="t">À retenir</b>Cylindriques : \(\varepsilon_{\theta\theta}=u_r/r\), et \((\sigma_{rr}-\sigma_{\theta\theta})/r\) dans l'équilibre ; expansion de cavité = pressiomètre. Airy : une fonction biharmonique pour tout problème plan, qui redonne la RDM et Flamant. Hertz : la pression de contact croît en \(P^{1/3}\), le cisaillement maximal est sous la surface. Ondes : \(V_S=\sqrt{G/\rho}\) ne voit que le squelette.</div>
+<div class="chap-links"><a class="btn" href="exerciseur.html#ch10">Exercices du chapitre</a></div>
+
+<h2 id="ch11">11 · Au-delà de l'élasticité linéaire isotrope</h2>
+<p>Le cours a supposé un matériau élastique, linéaire et isotrope, en petites perturbations. Chacun de ces quatre mots exclut quelque chose. Voici ce qu'il exclut, et dans quel cours on le retrouvera.</p>
+<h3>Isotrope — mais le bois, les roches et les sols ne le sont pas</h3>
+<p>Un matériau <b>isotrope transverse</b> (bois, roche stratifiée, sol déposé en couches, composite unidirectionnel) a un axe privilégié et demande cinq constantes au lieu de deux : \(E_\parallel\), \(E_\perp\), \(\nu_{\parallel\perp}\), \(\nu_\perp\), \(G_{\parallel\perp}\). Le bois est l'exemple le plus parlant : \(E\) vaut 10 000 à 15 000 MPa dans le sens du fil et 300 à 1 000 MPa en travers, un rapport de 15 à 30. Charger une poutre en bois en travers du fil, c'est charger un matériau trente fois plus souple et dix fois moins résistant. L'anisotropie la plus générale compte 21 constantes ; personne ne les mesure.</p>
+<h3>Élastique — mais l'acier plastifie et le sol s'ornière</h3>
+<p>Au-delà de la limite élastique, l'acier se déforme de façon <b>permanente</b> : décharger ne ramène pas à zéro, il reste une déformation plastique \(\varepsilon_p\). L'acier de construction a un palier (il coule à contrainte constante sur 1 à 2 % de déformation) puis s'écrouit ; c'est ce palier qui permet la redistribution des efforts dans une structure hyperstatique et le calcul plastique des portiques (rotules plastiques, \(M_p=f_y\,Z\)). Un sol ou une grave sous une roue accumule à chaque passage une déformation plastique infime ; au millionième passage, c'est l'<b>orniérage</b>. La plasticité se décrit par un seuil (ch. 6), une règle d'écoulement (dans quelle direction \(\varepsilon_p\) croît) et une règle d'écrouissage (comment le seuil bouge). Cours : calcul plastique des structures, mécanique des sols.</p>
+<h3>Linéaire et instantané — mais l'enrobé et le béton fluent</h3>
+<p>Un matériau <b>viscoélastique</b> répond à la contrainte avec un retard : sa déformation dépend du temps, et son module de la vitesse de chargement et de la température. L'enrobé bitumineux a un module de 15 000 MPa à 0 °C et 10 Hz (passage rapide d'un poids lourd par temps froid), et de 1 000 MPa à 40 °C et 0,1 Hz (camion arrêté au feu en été) : un facteur 15 pour le même matériau — c'est pourquoi le dimensionnement se fait à une température et une fréquence équivalentes, et pourquoi l'ornière se forme l'été au feu rouge. Le béton <b>flue</b> : sous charge constante, sa déformation double ou triple en quelques années, d'où les pertes de précontrainte et les flèches différées. Modèles : Maxwell (ressort + amortisseur en série), Kelvin-Voigt (en parallèle), Huet-Sayegh pour l'enrobé, Eurocode 2 pour le fluage du béton.</p>
+<h3>Continu — mais le béton fissure</h3>
+<p>Une fissure est une discontinuité : au-delà de Rankine, la MMC ne peut plus décrire ce qui se passe à sa pointe (la contrainte y tend vers l'infini). La <b>mécanique de la rupture</b> y substitue un facteur d'intensité de contrainte \(K_I=\sigma\sqrt{\pi a}\), comparé à la ténacité du matériau ; l'<b>endommagement</b> décrit, à l'échelle du continu, la dégradation progressive du module (\(E(1-d)\)). Le béton armé règle le problème autrement : il laisse fissurer et confie la traction à l'acier.</p>
+<h3>Petites perturbations — mais les poteaux flambent</h3>
+<p>Un poteau élancé comprimé se dérobe latéralement bien avant que \(\sigma\) n'atteigne \(f_y\) : c'est le <b>flambement</b> d'Euler, \(P_c=\pi^2EI/L_f^2\). Il n'est pas dans ce cours parce qu'il demande d'écrire l'équilibre dans la configuration <i>déformée</i> — ce que les petites perturbations interdisent. Même origine pour le déversement des poutres, le voilement des âmes, les grands déplacements des câbles et des membranes. Cours : stabilité des structures.</p>
+<div class="tw"><table><tr><th>Hypothèse</th><th>Ce qu'elle exclut</th><th>Matériaux et phénomènes</th><th>Cours</th></tr>
+<tr><td>isotrope</td><td>anisotropie</td><td>bois, roches stratifiées, sols en couches</td><td>bois, mécanique des roches</td></tr>
+<tr><td>élastique</td><td>plasticité</td><td>palier de l'acier, orniérage, rotules plastiques</td><td>calcul plastique, mécanique des sols</td></tr>
+<tr><td>linéaire, instantané</td><td>viscoélasticité, fluage</td><td>enrobé (T, fréquence), fluage du béton</td><td>chaussées, béton précontraint</td></tr>
+<tr><td>continu</td><td>fissuration, rupture</td><td>béton tendu, fatigue</td><td>béton armé, mécanique de la rupture</td></tr>
+<tr><td>petites perturbations</td><td>instabilités, grands déplacements</td><td>flambement, déversement, câbles</td><td>stabilité des structures</td></tr></table></div>
+<div class="box key"><b class="t">À retenir</b>« Élastique linéaire isotrope en petites perturbations » est une hypothèse de travail, pas une description du monde. Elle est excellente pour l'acier sous service, bonne pour le béton comprimé et le rocher, acceptable pour un sol loin de la rupture, fausse pour un enrobé chaud, un bois en travers, un poteau élancé. Savoir quand elle cesse de valoir est la première compétence de l'ingénieur.</div>
 
 <h2>Formulaire</h2>
 <p>Toutes les formules du cours sur une page, à imprimer : <a href="formulaire.html">formulaire.html</a>.</p>

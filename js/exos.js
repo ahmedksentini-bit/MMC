@@ -6,7 +6,7 @@
   MMC.nav('exerciseur.html');
   const f = (x, d) => fmt(x, d);
 
-  const chapters = { 2: 'Déformations', 3: 'Contraintes', 4: 'Élasticité linéaire', 5: 'Solutions classiques', 6: 'Critères', 7: 'Vers la RDM' };
+  const chapters = { 2: 'Déformations', 3: 'Contraintes', 4: 'Élasticité linéaire', 5: 'Solutions classiques', 6: 'Critères', 7: 'Vers la RDM', 8: 'Énergie', 10: 'Compléments' };
 
   const exos = [
     // ---------- ch2
@@ -166,6 +166,57 @@
         answers: [['σ<sub>xx</sub> = −My/I (MPa)', s, 0.03], ['τ<sub>xy</sub> = TQ/(Ib) (MPa)', t], ['σ<sub>1</sub> (MPa)', m.s1], ['angle de σ<sub>1</sub> sur l\'axe (°)', m.theta / deg, 1.5]],
         sol: 'I = ' + f(I / 1e8, 3) + ' ×10⁸ mm⁴ ; σ<sub>xx</sub> = −' + M + '×10⁶ × ' + y + ' / I = ' + f(s, 3) + ' MPa. Moment statique de la partie au-dessus de y : Q = b(h/2 − y)(h/2 + y)/2 = ' + f(Q / 1e6, 3) + ' ×10⁶ mm³ ; τ = TQ/(Ib) = ' + f(t, 3) + ' MPa. Cercle de Mohr de (σ, 0, τ) : σ<sub>1</sub> = ' + f(m.s1, 3) + ' MPa' + (m.s1 > fct ? ' > f<sub>ct</sub> : fissuration' : ' ≤ f<sub>ct</sub> : pas de fissure') + ', inclinée de ' + f(m.theta / deg, 1) + '° sur l\'axe ; la fissure lui est perpendiculaire. Sur l\'axe neutre (y = 0) σ = 0 et les fissures d\'effort tranchant partent à 45°.'
       };
+    } },
+    // ---------- ch8
+    { ch: 8, title: 'Flèche par Castigliano', gen() {
+      const L = pick([3, 4, 5, 6]), P = rnd(10, 80, 5), I = pick([1943, 2772, 3892, 5790, 8356, 11770]), E = 210000, type = pick(['console', 'milieu']);
+      const EI = E * I * 1e4, Lmm = L * 1000;
+      const d = type === 'console' ? P * 1e3 * Lmm ** 3 / (3 * EI) : P * 1e3 * Lmm ** 3 / (48 * EI);
+      const W = 0.5 * P * 1e3 * d / 1000;
+      return {
+        text: (type === 'console' ? 'Console' : 'Poutre sur deux appuis') + ' en acier (E = 210 000 MPa), L = ' + L + ' m, I = ' + I + ' cm⁴, charge P = ' + P + ' kN ' + (type === 'console' ? 'à l\'extrémité' : 'au milieu') + '.',
+        answers: [['énergie de déformation W (J)', W], ['flèche sous la charge (mm)', d], ['raideur P/δ (kN/mm)', P / d]],
+        sol: 'M(x) = ' + (type === 'console' ? 'P(L − x)' : 'Px/2 sur chaque moitié') + '. W = ∫ M²/(2EI) dx = ' + (type === 'console' ? 'P²L³/(6EI)' : 'P²L³/(96EI)') + ' = ' + f(W, 2) + ' J. Castigliano : δ = ∂W/∂P = ' + (type === 'console' ? 'PL³/(3EI)' : 'PL³/(48EI)') + ' = ' + f(d, 2) + ' mm. Vérification Clapeyron : ½Pδ = ' + f(W, 2) + ' J. Raideur = ' + f(P / d, 3) + ' kN/mm.'
+      };
+    } },
+    { ch: 8, title: 'Menabrea : réaction hyperstatique', gen() {
+      const L = pick([4, 5, 6, 8]), q = rnd(10, 40, 2);
+      return {
+        text: 'Poutre encastrée à gauche, sur appui simple à droite, L = ' + L + ' m, charge répartie q = ' + q + ' kN/m. On prend la réaction d\'appui droite X comme inconnue hyperstatique.',
+        answers: [['X (kN)', 3 * q * L / 8], ['moment à l\'encastrement (kN·m, valeur absolue)', q * L * L / 8], ['moment maximal en travée (kN·m)', 9 * q * L * L / 128]],
+        sol: 'M(x) = Xx − qx²/2 (x depuis l\'appui droit). W = ∫ M²/2EI dx ; ∂W/∂X = (1/EI)∫ M·x dx = 0 ⇒ XL³/3 − qL⁴/8 = 0 ⇒ X = 3qL/8 = ' + f(3 * q * L / 8, 2) + ' kN. Moment d\'encastrement M(L) = XL − qL²/2 = −qL²/8 = −' + f(q * L * L / 8, 2) + ' kN·m. En travée, M max en x = 3L/8 : 9qL²/128 = ' + f(9 * q * L * L / 128, 2) + ' kN·m. Menabrea remplace l\'équation de compatibilité « flèche nulle à l\'appui ».'
+      };
+    } },
+    // ---------- ch10
+    { ch: 10, title: 'Contact de Hertz', gen() {
+      const P = rnd(40, 120, 10), R = pick([400, 460, 500]), geo = pick(['sph', 'cyl']);
+      const Es = 1 / (2 * (1 - 0.09) / 210000);
+      let a, p0;
+      if (geo === 'sph') { a = Math.cbrt(3 * P * 1e3 * R / (4 * Es)); p0 = 3 * P * 1e3 / (2 * Math.PI * a * a); }
+      else { a = Math.sqrt(4 * P * R / (Math.PI * Es)); p0 = 2 * P / (Math.PI * a); }
+      return {
+        text: (geo === 'sph' ? 'Bille' : 'Cylindre') + ' en acier (E = 210 000 MPa, ν = 0,3) de rayon R = ' + R + ' mm sur un plan en acier, charge ' + P + (geo === 'sph' ? ' kN.' : ' kN par mètre de génératrice.'),
+        answers: [['E* (MPa)', Es], [geo === 'sph' ? 'rayon de contact a (mm)' : 'demi-largeur de contact b (mm)', a], ['pression maximale p₀ (MPa)', p0]],
+        sol: '1/E* = 2(1 − ν²)/E ⇒ E* = ' + f(Es, 0) + ' MPa. ' + (geo === 'sph' ? 'a = (3PR/4E*)^{1/3} = ' + f(a, 2) + ' mm ; p₀ = 3P/(2πa²) = ' + f(p0, 0) + ' MPa.' : 'b = √(4PR/πE*) = ' + f(a, 3) + ' mm (P en N/mm) ; p₀ = 2P/(πb) = ' + f(p0, 0) + ' MPa.') + ' Bien au-dessus de f_y : le contact plastifie localement, d\'où l\'écrouissage de la bande de roulement des rails.'
+      };
+    } },
+    { ch: 10, title: 'Ondes P et S', gen() {
+      const mat = pick([['béton', 33000, 0.2, 2400], ['acier', 210000, 0.3, 7850], ['sol compact', 300, 0.33, 2000], ['calcaire', 40000, 0.25, 2600]]);
+      const G = mat[1] / 2 / (1 + mat[2]), vs = Math.sqrt(G * 1e6 / mat[3]), vp = vs * Math.sqrt(2 * (1 - mat[2]) / (1 - 2 * mat[2]));
+      return {
+        text: mat[0] + ' : E = ' + mat[1] + ' MPa, ν = ' + mat[2] + ', ρ = ' + mat[3] + ' kg/m³.',
+        answers: [['V_S (m/s)', vs], ['V_P (m/s)', vp], ['V_P/V_S', vp / vs]],
+        sol: 'G = E/2(1+ν) = ' + f(G, 0) + ' MPa = ' + f(G * 1e6, 0) + ' Pa. V_S = √(G/ρ) = ' + f(vs, 0) + ' m/s. V_P/V_S = √[2(1−ν)/(1−2ν)] = ' + f(vp / vs, 3) + ' ⇒ V_P = ' + f(vp, 0) + ' m/s. Dans un sol saturé, V_P serait bornée par celle de l\'eau (1 500 m/s) : seule V_S renseigne sur le squelette.'
+      };
+    } },
+    { ch: 10, title: 'Flamant : charge linéique en surface', gen() {
+      const P = rnd(100, 500, 50), z = pick([1, 1.5, 2, 3]), x = pick([0, 0.5, 1, 2]);
+      const R2 = x * x + z * z, sz = 2 * P / Math.PI * z ** 3 / (R2 * R2), sr = 2 * P / Math.PI * z / R2;
+      return {
+        text: 'Charge linéique P = ' + P + ' kN/m sur la surface d\'un massif (mur, longrine). Point à la profondeur z = ' + z + ' m et à x = ' + x + ' m de la ligne de charge.',
+        answers: [['σ_r radiale (kPa)', sr], ['σ_z (kPa)', sz], ['σ_z sous la ligne, même z (kPa)', 2 * P / (Math.PI * z)]],
+        sol: 'Flamant : σ_r = 2P cos θ/(π r) avec r = ' + f(Math.sqrt(R2), 3) + ' m et cos θ = z/r : σ_r = ' + f(sr, 1) + ' kPa, σ_θ = τ = 0 (champ purement radial). Projection : σ_z = σ_r cos²θ = 2P z³/(π r⁴) = ' + f(sz, 1) + ' kPa. Sous la ligne (x = 0) : σ_z = 2P/(πz) = ' + f(2 * P / (Math.PI * z), 1) + ' kPa — décroissance en 1/z, contre 1/z² pour une charge ponctuelle.'
+      };
     } }
   ];
 
@@ -190,7 +241,11 @@
     ['Un petit trou dans une plaque en traction triple la contrainte sur son bord.', true, 'Facteur de concentration 3 (Kirsch), quel que soit le rayon du trou.'],
     ['Pour un acier, la pression hydrostatique rapproche de la plastification.', false, 'Tresca et von Mises ne dépendent que du déviateur : la pression hydrostatique n\'a aucun effet.'],
     ['Dans un sol, la facette de rupture de Mohr-Coulomb est celle de τ<sub>max</sub>.', false, 'Elle est inclinée de 45° + φ/2 sur la direction de σ<sub>3</sub>, pas de 45°.'],
-    ['Les fissures d\'effort tranchant d\'une poutre en béton sont perpendiculaires à σ<sub>1</sub>.', true, 'Le béton rompt en traction (Rankine) ; au voisinage de l\'axe neutre, σ<sub>1</sub> est à 45°, la fissure aussi.']
+    ['Les fissures d\'effort tranchant d\'une poutre en béton sont perpendiculaires à σ<sub>1</sub>.', true, 'Le béton rompt en traction (Rankine) ; au voisinage de l\'axe neutre, σ<sub>1</sub> est à 45°, la fissure aussi.'],
+    ['Le travail d\'une charge appliquée progressivement vaut F·u.', false, 'Il vaut ½F·u (Clapeyron) : la force croît de 0 à F pendant que le déplacement croît de 0 à u.'],
+    ['Un fluide au repos exerce la même pression sur toutes les facettes.', true, 'σ = −pI : le vecteur contrainte est −p n quelle que soit n, sans cisaillement (Pascal).'],
+    ['Dans un sol saturé, c\'est V<sub>P</sub> qui renseigne sur la raideur du squelette.', false, 'V<sub>P</sub> est bornée par celle de l\'eau ; V<sub>S</sub> = √(G/ρ) ne voit que le squelette, d\'où son usage en sismique (V<sub>S,30</sub>).'],
+    ['La pression de contact de Hertz est proportionnelle à la charge.', false, 'Elle croît en P^{1/3} (sphère) ou P^{1/2} (cylindre) : la surface de contact grandit avec la charge.']
   ];
   const qb = document.getElementById('qcm-box');
   let qscore = 0, qdone = 0;
