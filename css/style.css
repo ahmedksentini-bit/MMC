@@ -102,3 +102,15 @@ details.why > div{padding:0 14px 10px;border-top:1px solid var(--line)}
 .steps li::before{content:counter(s);position:absolute;left:0;top:6px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
 .steps li b{font-family:var(--mono);font-weight:600}
 .check{list-style:none;padding:0;margin:6px 0}.check li{padding:3px 0 3px 26px;position:relative}.check li::before{content:"☐";position:absolute;left:4px;color:var(--accent-2)}
+
+/* --- encart « La démarche » : question → données → méthode → résultat --- */
+.box.quest{border-left-color:var(--info);background:var(--info-soft)}
+.box.quest dl{display:grid;grid-template-columns:max-content 1fr;gap:5px 14px;margin:4px 0}
+.box.quest dt{font-weight:700;margin:0;color:var(--info)}.box.quest dd{margin:0}
+@media (max-width:560px){.box.quest dl{grid-template-columns:1fr}.box.quest dt{margin-top:6px}}
+/* --- scénario guidé d'un banc --- */
+.scen{border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:10px 12px;margin:10px 0}
+.scen .sh{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.scen .sh b{font-size:.85rem;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-2)}
+.scen .step{font-size:.95rem}.scen .step .do{font-weight:600}.scen .step .see{color:var(--ink-2);margin-top:4px}
+.scen .dots{display:inline-flex;gap:5px}.scen .dots i{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block}.scen .dots i.on{background:var(--accent-2)}

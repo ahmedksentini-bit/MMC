@@ -14,6 +14,21 @@
   };
   const text = (ctx, s, x, y, col, al, sz) => { ctx.fillStyle = col; ctx.font = (sz || 12) + 'px system-ui'; ctx.textAlign = al || 'left'; ctx.fillText(s, x, y); };
   const bindAll = (ids, fn) => { ids.forEach(id => { const el = document.getElementById(id); el.addEventListener('input', fn); el.addEventListener('change', fn); }); fn(); window.addEventListener('resize', fn); };
+  // scénario guidé d'un banc : étapes { set: {id: valeur}, do: consigne, see: ce qu'il faut voir } dans <div class="scen" data-scen="clé">
+  const scenario = (key, steps, draw) => {
+    const box = document.querySelector('.scen[data-scen="' + key + '"]'); if (!box) return;
+    box.innerHTML = '<div class="sh"><b>Scénario guidé</b><span class="dots"></span><button class="sc-prev">◀</button><button class="primary sc-next">Étape suivante ▶</button></div><div class="step"></div>';
+    let i = 0;
+    const show = () => {
+      const st = steps[i]; Object.entries(st.set || {}).forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.value = v; }); draw();
+      box.querySelector('.step').innerHTML = '<div class="do">' + st.do + '</div><div class="see">' + st.see + '</div>';
+      box.querySelector('.dots').innerHTML = steps.map((_, k) => '<i class="' + (k === i ? 'on' : '') + '"></i>').join('');
+      box.querySelector('.sc-next').textContent = i === steps.length - 1 ? 'Recommencer' : 'Étape suivante ▶';
+    };
+    box.querySelector('.sc-next').addEventListener('click', () => { i = (i + 1) % steps.length; show(); });
+    box.querySelector('.sc-prev').addEventListener('click', () => { i = (i + steps.length - 1) % steps.length; show(); });
+    show();
+  };
 
   const BANCS = {};
   BANCS['carre'] = { n: 1, title: 'Banc 1 · Le carré qui se déforme', intro: "Quatre curseurs fixent le gradient du déplacement. Le carré pointillé est l'état initial ; le carré plein, l'état déformé. Les flèches vertes sont les directions principales. La déformation est amplifiée pour être visible (facteur ×100).", html: `<div class="grid">
@@ -22,10 +37,29 @@
 <label>∂u<sub>x</sub>/∂y = <span id="l-uxy"></span> ×10⁻³<input type="range" id="s-uxy" min="-3" max="3" step="0.1" value="0.8"></label>
 <label>∂u<sub>y</sub>/∂x = <span id="l-uyx"></span> ×10⁻³<input type="range" id="s-uyx" min="-3" max="3" step="0.1" value="-0.2"></label>
 </div>
-<div class="row"><button data-set="1.5,0,0,0">traction x</button><button data-set="0,0,1,1">cisaillement pur</button><button data-set="0,0,1,-1">rotation pure</button><button data-set="1,1,0,0">dilatation</button><button data-set="1.5,-0.45,0,0">traction + Poisson</button></div>
+<div class="row"><span class="chip">Préréglages</span><button data-set="1.5,0,0,0">traction x</button><button data-set="0,0,1,1">cisaillement pur</button><button data-set="0,0,1,-1">rotation pure</button><button data-set="1,1,0,0">dilatation</button><button data-set="1.5,-0.45,0,0">traction + Poisson</button></div>
+<div class="scen" id="sc-carre"><div class="sh"><b>Scénario guidé</b><span class="dots" id="scc-dots"></span><button id="scc-prev">◀</button><button class="primary" id="scc-next">Étape suivante ▶</button></div><div class="step" id="scc-step"></div></div>
 <canvas id="cv-carre" width="640" height="360"></canvas>
 <div class="out" id="o-carre"></div>`, init() {
     const cv1 = document.getElementById('cv-carre');
+    const setC = v => { ['s-uxx', 's-uyy', 's-uxy', 's-uyx'].forEach((id, i) => { if (v[i] !== null) document.getElementById(id).value = v[i]; }); drawCarre(); };
+    const STEPS = [
+      { set: [1.5, 0, 0, 0], do: 'Étape 1 — on tire selon x.', see: 'Seule la case ∂uₓ/∂x est non nulle : le point de droite a bougé plus que celui de gauche. Le carré s\'allonge, rien d\'autre. Dans ε, une seule case : εₓₓ = 1,5 ×10⁻³, soit 1,5 mm par mètre.' },
+      { set: [0, 0, 1, -1], do: 'Étape 2 — rotation pure.', see: 'Les deux cases croisées sont opposées : le haut glisse à droite, la droite glisse vers le bas. Le carré tourne — et ε est entièrement nul. Toute la variation du déplacement est partie dans ω. C\'est ce qu\'un capteur de déplacement verrait bouger, et que la matière ne sent pas.' },
+      { set: [0, 0, 1, 1], do: 'Étape 3 — cisaillement pur.', see: 'Mêmes curseurs, mais de même signe : cette fois les deux côtés tournent l\'un vers l\'autre et l\'angle droit se ferme. Le carré devient un losange, ω = 0, et les flèches vertes se placent à 45° : dans ces directions, la matière s\'allonge d\'un côté et se raccourcit de l\'autre, sans se pencher. Notez εₓᵧ = 1 pour γ = 2 : le tenseur garde la moitié.' },
+      { set: [1.5, -0.45, 0, 0], do: 'Étape 4 — traction avec effet Poisson.', see: 'On tire selon x et le carré s\'amincit selon y : c\'est ce que fait une éprouvette réelle (ch. 4). ΔA/A = 1,5 − 0,45 : la surface a augmenté, mais moins que l\'allongement seul ne le laissait croire.' },
+      { set: [1.2, -0.4, 0.8, -0.2], do: 'Étape 5 — un cas quelconque.', see: 'Allongement, distorsion et rotation à la fois. Regardez les trois matrices : ∇u est la somme de ε (symétrique) et de ω (antisymétrique). Et malgré le désordre des cases, il existe toujours deux directions vertes, perpendiculaires, où le carré ne se penche pas : les directions principales.' },
+      { set: [null, null, null, null], do: 'À vous.', see: 'Trouvez des curseurs qui donnent εₓₓ = 0, εᵧᵧ = 0 et pourtant une surface qui change (ΔA/A ≠ 0). Impossible ? Pourquoi ? (indice : la trace.) Puis des curseurs qui donnent γ = 0 avec ∂uₓ/∂y ≠ 0.' }
+    ];
+    let si = 0;
+    function showStep() {
+      const st = STEPS[si]; setC(st.set);
+      document.getElementById('scc-step').innerHTML = '<div class="do">' + st.do + '</div><div class="see">' + st.see + '</div>';
+      document.getElementById('scc-dots').innerHTML = STEPS.map((_, i) => '<i class="' + (i === si ? 'on' : '') + '"></i>').join('');
+      document.getElementById('scc-next').textContent = si === STEPS.length - 1 ? 'Recommencer' : 'Étape suivante ▶';
+    }
+    document.getElementById('scc-next').addEventListener('click', () => { si = (si + 1) % STEPS.length; showStep(); });
+    document.getElementById('scc-prev').addEventListener('click', () => { si = (si + STEPS.length - 1) % STEPS.length; showStep(); });
     function drawCarre() {
       const uxx = slider('s-uxx', 'l-uxx', 1), uyy = slider('s-uyy', 'l-uyy', 1), uxy = slider('s-uxy', 'l-uxy', 1), uyx = slider('s-uyx', 'l-uyx', 1);
       const k = C(), { ctx, W, H } = setupCanvas(cv1, 640, 360);
@@ -74,19 +108,41 @@
       ]);
     }
     bindAll(['s-uxx', 's-uyy', 's-uxy', 's-uyx'], drawCarre);
-    document.querySelectorAll('#carre button[data-set]').forEach(b => b.addEventListener('click', () => {
-      const v = b.dataset.set.split(','); ['s-uxx', 's-uyy', 's-uxy', 's-uyx'].forEach((id, i) => document.getElementById(id).value = v[i]); drawCarre();
-    }));
+    // préréglages : scopés au conteneur du banc (et non à #carre) pour fonctionner aussi dans cours.html
+    cv1.parentElement.querySelectorAll('button[data-set]').forEach(b => b.addEventListener('click', () => setC(b.dataset.set.split(',').map(Number))));
+    showStep();
   } };
   BANCS['mohr'] = { n: 2, title: 'Banc 2 · Cercle de Mohr', intro: "À gauche, l'élément de matière et la facette tournée de θ avec ses contraintes ; à droite, le cercle. Tourner θ de 1° fait tourner le point de 2° sur le cercle. Les repères verts sont les facettes principales, le repère rouge la facette de cisaillement maximal.", html: `<div class="grid">
-<label>σ<sub>xx</sub> = <span id="l-sx"></span> MPa<input type="range" id="s-sx" min="-150" max="150" step="5" value="80"></label>
-<label>σ<sub>yy</sub> = <span id="l-sy"></span> MPa<input type="range" id="s-sy" min="-150" max="150" step="5" value="-40"></label>
-<label>σ<sub>xy</sub> = <span id="l-sxy"></span> MPa<input type="range" id="s-sxy" min="-100" max="100" step="5" value="30"></label>
-<label>θ = <span id="l-th"></span> °<input type="range" id="s-th" min="0" max="180" step="1" value="30"></label>
+<label>σ<sub>xx</sub> = <span id="l-sx"></span> MPa<input type="range" id="s-sx" min="-150" max="150" step="1" value="54"></label>
+<label>σ<sub>yy</sub> = <span id="l-sy"></span> MPa<input type="range" id="s-sy" min="-150" max="150" step="1" value="27"></label>
+<label>σ<sub>xy</sub> = <span id="l-sxy"></span> MPa<input type="range" id="s-sxy" min="-100" max="100" step="1" value="0"></label>
+<label>θ = <span id="l-th"></span> °<input type="range" id="s-th" min="0" max="180" step="1" value="0"></label>
 </div>
+<div class="row"><span class="chip">Situations</span><button data-mset="54,27,0,0">sol sous remblai (kPa)</button><button data-mset="200,0,80,0">âme de poutre acier</button><button data-mset="0,0,30,0">cisaillement pur</button><button data-mset="-10,-10,0,0">pression (fluide)</button></div>
+<div class="scen" id="sc-mohr"><div class="sh"><b>Scénario guidé</b><span class="dots" id="sc-dots"></span><button id="sc-prev">◀</button><button class="primary" id="sc-next">Étape suivante ▶</button></div><div class="step" id="sc-step"></div></div>
 <canvas id="cv-mohr" width="720" height="360"></canvas>
 <div class="out" id="o-mohr"></div>`, init() {
     const cv2 = document.getElementById('cv-mohr');
+    const setM = (sx, sy, t, th) => { [['s-sx', sx], ['s-sy', sy], ['s-sxy', t], ['s-th', th]].forEach(([id, v]) => { if (v !== null) document.getElementById(id).value = v; }); drawMohr(); };
+    cv2.parentElement.querySelectorAll('button[data-mset]').forEach(b => b.addEventListener('click', () => setM(...b.dataset.mset.split(',').map(Number))));
+    // --- scénario : partir de la coupe horizontale du sol et tourner la facette
+    const STEPS = [
+      { set: [54, 27, 0, 0], do: 'Étape 1 — la coupe horizontale (θ = 0°).', see: 'Le sol du remblai : 54 kPa poussent sur la coupe horizontale, 27 sur la verticale, rien ne glisse. Regardez le point bleu : il est sur l\'axe σn, tout à droite du cercle. C\'est σ₁, et τ = 0.' },
+      { set: [null, null, null, 20], do: 'Étape 2 — tournez un peu la facette (θ = 20°).', see: 'Les flèches rouges apparaissent : la coupe inclinée reçoit une part des 54 et une part des 27, qui ne s\'annulent pas — elle glisse. Sur le cercle, le point a tourné de 2θ = 40°, pas 20°. Comparez l\'angle du carré et l\'arc bleu.' },
+      { set: [null, null, null, 45], do: 'Étape 3 — la coupe à 45°.', see: 'Le point est tout en bas du cercle : |τ| = R = (54 − 27)/2 = 13,5 kPa, le maximum possible (le signe dit seulement dans quel sens la matière glisse ; le repère rouge en haut est son jumeau, à θ = 135°). Le glissement vient de la différence entre les deux contraintes ; à 45° les deux y contribuent autant. σn vaut alors la moyenne, C = 40,5.' },
+      { set: [null, null, null, 90], do: 'Étape 4 — la coupe verticale (θ = 90°).', see: 'τ est revenu à zéro et σn = 27 : c\'est σ₂. Le point a fait un demi-tour (2 × 90°) : deux facettes perpendiculaires sont toujours diamétralement opposées sur le cercle. Vous avez vu tout le cercle.' },
+      { set: [54, 27, 20, 0], do: 'Étape 5 — ajoutez un cisaillement (σxy = 20).', see: 'Le diamètre x–y bascule : les coupes horizontale et verticale ne sont plus les facettes principales. Le rayon a grandi (√(13,5² + 20²) = 24,1). Lisez θ₁ dans le tableau : c\'est l\'angle qu\'il faut tourner pour retrouver τ = 0. Tournez θ jusqu\'à cette valeur pour vérifier.' },
+      { set: [200, 0, 80, 0], do: 'Et maintenant, à vous — l\'âme d\'une poutre en acier (MPa).', see: 'σxx = 200, σyy = 0, τ = 80. Avant de lire le tableau : quel est le rayon ? Où est σ₁ ? Est-ce que 200 MPa « seuls » suffisaient à dépasser 235 ? (réponse au chapitre 6.)' }
+    ];
+    let si = 0;
+    function showStep() {
+      const st = STEPS[si]; setM(...st.set);
+      document.getElementById('sc-step').innerHTML = '<div class="do">' + st.do + '</div><div class="see">' + st.see + '</div>';
+      document.getElementById('sc-dots').innerHTML = STEPS.map((_, i) => '<i class="' + (i === si ? 'on' : '') + '"></i>').join('');
+      document.getElementById('sc-next').textContent = si === STEPS.length - 1 ? 'Recommencer' : 'Étape suivante ▶';
+    }
+    document.getElementById('sc-next').addEventListener('click', () => { si = (si + 1) % STEPS.length; showStep(); });
+    document.getElementById('sc-prev').addEventListener('click', () => { si = (si + STEPS.length - 1) % STEPS.length; showStep(); });
     function drawMohr() {
       const sx = slider('s-sx', 'l-sx', 0), sy = slider('s-sy', 'l-sy', 0), t = slider('s-sxy', 'l-sxy', 0), thd = slider('s-th', 'l-th', 0), th = thd * deg;
       const k = C(), { ctx, W, H } = setupCanvas(cv2, 720, 360);
@@ -120,10 +176,13 @@
       text(ctx, 'σn = ' + fmt(r.sn, 1) + ' MPa', cx, cy - s * 1.75, k.sig, 'center', 13);
       text(ctx, 'τ = ' + fmt(r.tnt, 1) + ' MPa', cx, cy + s * 1.95, k.ko, 'center', 13);
       // --- cercle (droite)
-      const ox = W * 0.72, oy = H * 0.52, R = Math.min(W * 0.2, H * 0.36);
-      const smax = Math.max(Math.abs(m.s1), Math.abs(m.s2), m.R) * 1.25 || 1, u = R / smax;
-      ctx.strokeStyle = k.ink3; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(ox - R * 1.15, oy); ctx.lineTo(ox + R * 1.15, oy); ctx.stroke(); ctx.beginPath(); ctx.moveTo(ox, oy + R * 1.1); ctx.lineTo(ox, oy - R * 1.1); ctx.stroke();
-      text(ctx, 'σn', ox + R * 1.15 + 4, oy + 4, k.ink2); text(ctx, 'τ', ox + 5, oy - R * 1.1, k.ink2);
+      let ox = W * 0.72; const oy = H * 0.52, R = Math.min(W * 0.2, H * 0.36);
+      // échelle : le cercle occupe toujours le cadre (rayon ≈ 0,8 R) ; l'axe τ (σn = 0) est tracé s'il tient dans le cadre, sinon signalé
+      const u = R * 0.8 / Math.max(m.R, 1e-9), oxc = ox; ox = oxc - m.c * u; // ox : abscisse de σn = 0
+      ctx.strokeStyle = k.ink3; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(oxc - R * 1.15, oy); ctx.lineTo(oxc + R * 1.15, oy); ctx.stroke();
+      if (Math.abs(ox - oxc) < R * 1.1) { ctx.beginPath(); ctx.moveTo(ox, oy + R * 1.1); ctx.lineTo(ox, oy - R * 1.1); ctx.stroke(); text(ctx, 'τ', ox + 5, oy - R * 1.1, k.ink2); text(ctx, '0', ox - 4, oy + 14, k.ink3, 'right', 11); }
+      else { text(ctx, (ox < oxc ? '← ' : '') + 'σn = 0 hors cadre' + (ox > oxc ? ' →' : ''), oxc, oy + R * 1.1 + 14, k.ink3, 'center', 11); text(ctx, 'τ', oxc + 5, oy - R * 1.1, k.ink2); ctx.setLineDash([2, 4]); ctx.beginPath(); ctx.moveTo(oxc, oy + R * 1.05); ctx.lineTo(oxc, oy - R * 1.05); ctx.stroke(); ctx.setLineDash([]); }
+      text(ctx, 'σn', oxc + R * 1.15 + 4, oy + 4, k.ink2);
       ctx.fillStyle = k.bg2; ctx.strokeStyle = k.acc; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(ox + m.c * u, oy, m.R * u, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
       // point x (σxx, τxy) et y, diamètre
       const px = [ox + sx * u, oy - t * u], py = [ox + sy * u, oy + t * u];
@@ -146,6 +205,7 @@
       ]);
     }
     bindAll(['s-sx', 's-sy', 's-sxy', 's-th'], drawMohr);
+    showStep();
   } };
   BANCS['traction'] = { n: 3, title: 'Banc 3 · Éprouvette en traction', intro: "Choisir le matériau, puis tirer. L'éprouvette s'allonge selon E et se rétrécit selon ν (déplacements amplifiés). Le diagramme σ–ε avance jusqu'à la limite élastique ; au-delà, le modèle linéaire n'est plus valable.", html: `<div class="grid">
 <label>Matériau<select id="tr-mat"></select></label>
@@ -153,6 +213,7 @@
 <label>Longueur L<sub>0</sub> (mm)<input id="tr-L" value="200"></label>
 <label>Contrainte σ = <span id="l-ts"></span> % de la limite<input type="range" id="s-ts" min="0" max="120" step="1" value="60"></label>
 </div>
+<div class="scen" data-scen="traction"></div>
 <canvas id="cv-trac" width="720" height="300"></canvas>
 <div class="out" id="o-trac"></div>`, init() {
     const cv3 = document.getElementById('cv-trac'), sel = document.getElementById('tr-mat');
@@ -193,6 +254,7 @@
       ]);
     }
     bindAll(['tr-mat', 'tr-d', 'tr-L', 's-ts'], drawTrac);
+    scenario('traction', [{"set": {"tr-mat": "acier", "tr-d": 16, "tr-L": 200, "s-ts": 0}, "do": "Étape 1 — rien n'est tiré.", "see": "Une éprouvette d'acier, ∅ 16 mm, 200 mm entre repères. σ = 0, ε = 0 : le point est à l'origine du diagramme. Tout ce qui suit se lit sur la pente de la droite."}, {"set": {"s-ts": 50}, "do": "Étape 2 — à la moitié de la limite élastique.", "see": "σ ≈ 178 MPa. L'allongement relatif est σ/E ≈ 0,85 ‰ : 0,17 mm sur 200 mm, invisible à l'œil, c'est pourquoi le dessin l'amplifie. Et l'éprouvette maigrit : le rétrécissement en travers vaut ν fois l'allongement, 0,3 × 0,85 ‰. Deux mesures, deux constantes."}, {"set": {"s-ts": 100}, "do": "Étape 3 — à la limite.", "see": "Le point touche l'extrémité de la droite : fy = 355 MPa, ε ≈ 1,7 ‰. Jusqu'ici, relâcher ramène à zéro. Au-delà, l'acier plastifie : la droite s'arrête, le modèle de ce chapitre aussi (ch. 6 et 11)."}, {"set": {"tr-mat": "beton", "s-ts": 50}, "do": "Étape 4 — même essai, en béton.", "see": "E est six fois plus petit (33 000 MPa) et la limite dix fois plus basse (30 MPa en compression). À la même fraction de la limite, σ = 15 MPa et ε ≈ 0,45 ‰ : moins qu'un acier à mi-limite. La raideur et la résistance sont deux choses différentes."}, {"set": {}, "do": "À vous.", "see": "Pour quel matériau de la liste l'allongement à 100 % de la limite est-il le plus grand ? Prédisez-le avant d'essayer : il suffit de comparer fy/E."}], drawTrac);
   } };
   BANCS['boussinesq'] = { n: 4, title: 'Banc 4 · Bulbe de Boussinesq', intro: "Charge appliquée en surface d'un massif semi-infini : ponctuelle, ou répartie sur une bande (intégration de la solution ponctuelle). Les couleurs et les isovaleurs donnent σ<sub>z</sub> ; toucher le massif lit la valeur au point.", html: `<div class="grid">
 <label>Charge<select id="bo-type"><option value="point">ponctuelle P</option><option value="strip">bande de largeur B, pression q</option></select></label>
@@ -200,6 +262,7 @@
 <label>B (m) = <span id="l-bB"></span><input type="range" id="s-bB" min="0.5" max="4" step="0.1" value="2"></label>
 <label>Profondeur affichée (m) = <span id="l-bz"></span><input type="range" id="s-bz" min="2" max="12" step="0.5" value="6"></label>
 </div>
+<div class="scen" data-scen="boussinesq"></div>
 <canvas id="cv-bou" width="720" height="380"></canvas>
 <div class="out" id="o-bou"></div>`, init() {
     const cv4 = document.getElementById('cv-bou');
@@ -262,12 +325,14 @@
       ]);
     }
     bindAll(['bo-type', 's-bP', 's-bB', 's-bz'], drawBou);
+    scenario('boussinesq', [{"set": {"bo-type": "point", "s-bP": 300, "s-bz": 6}, "do": "Étape 1 — une charge en un point de la surface.", "see": "Les couleurs et les isovaleurs dessinent le bulbe : la charge se diffuse en profondeur et en largeur à la fois. Touchez le massif sous l'axe à 1 m, puis à 2 m, puis à 4 m : σz chute très vite — comme 1/z²."}, {"set": {"bo-type": "strip", "s-bP": 200, "s-bB": 2}, "do": "Étape 2 — une semelle filante de 2 m à 200 kPa.", "see": "La charge répartie s'obtient en additionnant des charges ponctuelles (superposition, ch. 5). Sous le centre, à une largeur de profondeur (2 m), lisez σz : à peu près la moitié de q. À deux largeurs (4 m), environ 30 %. C'est l'origine de la règle « le sol qui travaille est sur 1,5 à 2 B »."}, {"set": {"s-bB": 4}, "do": "Étape 3 — même pression, semelle deux fois plus large.", "see": "Le bulbe descend deux fois plus profond. C'est la largeur de la fondation qui fixe la profondeur du sol sollicité, pas la pression — d'où la profondeur de reconnaissance des sondages."}, {"set": {"s-bB": 2, "s-bP": 400}, "do": "Étape 4 — pression doublée, largeur égale.", "see": "Tous les σz doublent, le bulbe garde exactement sa forme : le problème est linéaire. Et rien ici ne dépend du module E — la contrainte de Boussinesq est la même dans une argile molle et dans une grave ; seul le tassement en dépend."}], drawBou);
     cv4.addEventListener('pointerdown', drawBou); cv4.addEventListener('pointermove', e => { if (e.buttons) drawBou(e); });
   } };
   BANCS['kirsch'] = { n: 5, title: 'Banc 5 · Trou de Kirsch', intro: "Plaque en traction σ<sub>∞</sub> selon x, percée d'un trou. La carte donne σ<sub>xx</sub>/σ<sub>∞</sub> ; la courbe, σ<sub>θ</sub> le long du bord du trou. Le facteur 3 ne dépend ni du rayon ni de σ<sub>∞</sub> ; glisser le curseur de r pour voir à quelle distance l'effet s'éteint.", html: `<div class="grid">
 <label>r/a le long de l'axe y = <span id="l-kr"></span><input type="range" id="s-kr" min="1" max="5" step="0.05" value="1"></label>
 <label>Chargement<select id="k-load"><option value="1">traction simple σ<sub>∞</sub></option><option value="2">biaxiale égale (σ<sub>∞</sub>, σ<sub>∞</sub>)</option><option value="3">cisaillement pur (σ<sub>∞</sub>, −σ<sub>∞</sub>)</option></select></label>
 </div>
+<div class="scen" data-scen="kirsch"></div>
 <canvas id="cv-kir" width="720" height="360"></canvas>
 <div class="out" id="o-kir"></div>`, init() {
     const cv5 = document.getElementById('cv-kir');
@@ -325,6 +390,7 @@
       ]);
     }
     bindAll(['s-kr', 'k-load'], drawKir);
+    scenario('kirsch', [{"set": {"k-load": "1", "s-kr": 1}, "do": "Étape 1 — sur le bord du trou.", "see": "Plaque tirée selon x. Sur les flancs du trou (en haut et en bas), σθ = 3 σ∞ ; aux pôles (à gauche et à droite), −σ∞ : le bord y est comprimé alors que la plaque est tendue. Les lignes de force contournent le vide et se resserrent sur ses flancs."}, {"set": {"s-kr": 2}, "do": "Étape 2 — à un rayon du bord.", "see": "r/a = 2 : il ne reste que 1,22 σ∞. La surcontrainte s'éteint presque aussi vite qu'elle est apparue."}, {"set": {"s-kr": 4}, "do": "Étape 3 — à trois rayons du bord.", "see": "1,04 σ∞ : 4 % d'écart. Au-delà, la plaque ne sait plus qu'il y a un trou. C'est Saint-Venant — et la raison pour laquelle on renforce un trou localement, pas toute la pièce."}, {"set": {"k-load": "2", "s-kr": 1}, "do": "Étape 4 — tirée dans les deux sens (galerie sous contrainte isotrope).", "see": "σθ = 2 σ∞ sur tout le bord, sans point comprimé : une galerie dans un massif chargé également dans toutes les directions voit sa paroi deux fois plus chargée que le massif."}, {"set": {"k-load": "3", "s-kr": 1}, "do": "Étape 5 — cisaillement pur (traction dans un sens, compression dans l'autre).", "see": "±4 σ∞ : le pire cas. C'est l'état de l'âme d'une poutre à l'axe neutre (ch. 7) — et pourquoi un trou dans une âme cisaillée est si dangereux."}], drawKir);
   } };
   BANCS['criteres'] = { n: 6, title: 'Banc 6 · Critères de limite élastique', intro: "À gauche, le plan (σ<sub>1</sub>, σ<sub>2</sub>) avec σ<sub>3</sub> = 0 : hexagone de Tresca, ellipse de von Mises, carré de Rankine, et le point de l'état de contrainte. À droite, le plan de Mohr : le cercle (σ<sub>1</sub>, σ<sub>3</sub>) face à la droite de Coulomb τ = c + σ tan φ (compressions positives).", html: `<div class="grid">
 <label>σ<sub>1</sub> = <span id="l-c1"></span> MPa<input type="range" id="s-c1" min="-400" max="400" step="5" value="250"></label>
@@ -335,6 +401,7 @@
 <label>c = <span id="l-mc"></span> kPa<input type="range" id="s-mc" min="0" max="100" step="5" value="10"></label>
 <label>φ = <span id="l-mphi"></span> °<input type="range" id="s-mphi" min="0" max="45" step="1" value="30"></label>
 </div>
+<div class="scen" data-scen="criteres"></div>
 <canvas id="cv-crit" width="720" height="360"></canvas>
 <div class="out" id="o-crit"></div>`, init() {
     const cv6 = document.getElementById('cv-crit');
@@ -388,6 +455,7 @@
       ]);
     }
     bindAll(['s-c1', 's-c2', 's-ce', 's-m1', 's-m3', 's-mc', 's-mphi'], drawCrit);
+    scenario('criteres', [{"set": {"s-c1": 230, "s-c2": -30, "s-ce": 235}, "do": "Étape 1 — l'âme d'un profilé S235 (exemple du cours).", "see": "σ1 = 230, σ2 = −30. Le point est hors de l'hexagone de Tresca (260 > 235) et hors de l'ellipse de von Mises (246 > 235) : plastifié. Pourtant σ1 seule (230) passait. C'est la combinaison avec σ2 qui fait basculer."}, {"set": {"s-c1": 200, "s-c2": 200}, "do": "Étape 2 — biaxial égal : tiré pareil dans les deux sens.", "see": "Tresca et von Mises sont d'accord : 200 < 235, élastique. Le carré de Rankine, lui, est bien plus petit — un béton serait fissuré depuis longtemps."}, {"set": {"s-c1": 150, "s-c2": -150}, "do": "Étape 3 — cisaillement pur.", "see": "Tresca : 300 > 235, plastifié. Von Mises : 260 > 235, plastifié aussi, mais de moins. C'est là que les deux critères s'écartent le plus : 15 %."}, {"set": {"s-m1": 300, "s-m3": 100, "s-mc": 0, "s-mphi": 30}, "do": "Étape 4 — à droite, un sable (c = 0, φ = 30°).", "see": "Kp = 3 : rupture quand σ'1 = 3 σ'3 = 300 kPa. On y est tout juste : le cercle touche la droite. Regardez où : pas au sommet, mais plus à gauche — la facette de rupture est à 45° + 15° = 60° de la direction de σ'3."}, {"set": {"s-mphi": 35}, "do": "Étape 5 — un sable plus frottant, φ = 35°.", "see": "La droite se redresse, Kp passe à 3,7 et le cercle a de la marge. Le point de contact s'est déplacé : la facette de rupture est maintenant à 62,5°."}, {"set": {"s-mphi": 0, "s-mc": 100}, "do": "Étape 6 — une argile saturée à court terme (φ = 0, cu = 100 kPa).", "see": "La droite est horizontale : la compression ne renforce plus rien. C'est Tresca avec cu = σe/2 : rupture quand σ'1 − σ'3 = 2 cu = 200. Ici, 200 : à la limite, et sur la facette à 45°."}], drawCrit);
   } };
   BANCS['lame'] = { n: 7, title: 'Banc 7 · Tube épais de Lamé', intro: "Un tube sous pression intérieure et extérieure. À gauche, la section avec les contraintes orthoradiales colorées ; à droite, les profils σ<sub>r</sub> et σ<sub>θ</sub> dans l'épaisseur, comparés à la formule de la coque mince.", html: `<div class="grid">
 <label>a intérieur = <span id="l-la"></span> mm<input type="range" id="s-la" min="200" max="800" step="10" value="500"></label>
@@ -395,6 +463,7 @@
 <label>p<sub>a</sub> = <span id="l-lpa"></span> MPa<input type="range" id="s-lpa" min="0" max="5" step="0.1" value="2"></label>
 <label>p<sub>b</sub> = <span id="l-lpb"></span> MPa<input type="range" id="s-lpb" min="0" max="5" step="0.1" value="0"></label>
 </div>
+<div class="scen" data-scen="lame"></div>
 <canvas id="cv-lame" width="720" height="340"></canvas>
 <div class="out" id="o-lame"></div>`, init() {
     const cv7 = document.getElementById('cv-lame');
@@ -426,6 +495,7 @@
       ]);
     }
     bindAll(['s-la', 's-le', 's-lpa', 's-lpb'], drawLame);
+    scenario('lame', [{"set": {"s-la": 500, "s-le": 20, "s-lpa": 2, "s-lpb": 0}, "do": "Étape 1 — paroi mince (e/a = 4 %).", "see": "Sous 2 MPa intérieurs, σθ ≈ p·a/e = 50 MPa, presque uniforme dans l'épaisseur : la coque mince suffit."}, {"set": {"s-le": 150}, "do": "Étape 2 — paroi épaisse (e/a = 30 %).", "see": "La coque mince dirait 6,7 MPa. Lamé donne 7,8 MPa sur la paroi intérieure et 5,8 à l'extérieur : la contrainte n'est plus uniforme, elle est maximale dedans — là où l'on ne voit rien. Et σr vaut −p à l'intérieur, 0 dehors."}, {"set": {"s-le": 400}, "do": "Étape 3 — très épaisse (e/a = 80 %).", "see": "Coque mince : 2,5 MPa. Lamé : 3,8 MPa à l'intérieur. La formule simple sous-estime de 50 %. Au-delà d'un certain rapport, épaissir ne sert presque plus : σθ intérieur tend vers p, pas vers 0."}, {"set": {"s-lpa": 0, "s-lpb": 2}, "do": "Étape 4 — pression extérieure (buse enterrée, tube sous nappe).", "see": "Mêmes formules, signes inversés : σθ est une compression, et elle est encore maximale sur la paroi intérieure. C'est là qu'une buse se fissure ou qu'un tube flambe."}], drawLame);
   } };
   BANCS['torsion'] = { n: 8, title: "Banc 8 · Torsion d'un arbre circulaire", intro: "Le couple fait tourner les sections les unes par rapport aux autres ; les génératrices deviennent des hélices. Le cisaillement est nul sur l'axe et maximal sur la peau. Les flèches à 45° sont les directions principales : c'est là que se fissure une craie ou un béton tordu.", html: `<div class="grid">
 <label>M<sub>t</sub> = <span id="l-tm"></span> kN·m<input type="range" id="s-tm" min="0" max="60" step="1" value="20"></label>
@@ -433,6 +503,7 @@
 <label>d<sub>i</sub> = <span id="l-tdi"></span> mm<input type="range" id="s-tdi" min="0" max="280" step="10" value="0"></label>
 <label>G = <span id="l-tg"></span> GPa<input type="range" id="s-tg" min="5" max="100" step="1" value="80"></label>
 </div>
+<div class="scen" data-scen="torsion"></div>
 <canvas id="cv-tor" width="720" height="320"></canvas>
 <div class="out" id="o-tor"></div>`, init() {
     const cv8 = document.getElementById('cv-tor');
@@ -476,6 +547,7 @@
       ]);
     }
     bindAll(['s-tm', 's-td', 's-tdi', 's-tg'], drawTor);
+    scenario('torsion', [{"set": {"s-tm": 20, "s-td": 150, "s-tdi": 0, "s-tg": 80}, "do": "Étape 1 — un arbre plein.", "see": "Les génératrices deviennent des hélices. Le cisaillement est nul sur l'axe (rien n'y glisse) et maximal sur la peau : τmax ≈ 30 MPa. Les flèches à 45° sont les directions principales : traction d'un côté, compression de l'autre."}, {"set": {"s-tdi": 120}, "do": "Étape 2 — on creuse : tube de 150/120.", "see": "On a retiré 64 % de la matière et τmax n'est passé que de 30 à 51 MPa : le cœur ne travaillait presque pas. C'est pourquoi les arbres et les mâts sont des tubes."}, {"set": {"s-tm": 40}, "do": "Étape 3 — couple doublé.", "see": "τ et l'angle de rotation doublent : tout est linéaire. Les hélices se resserrent."}, {"set": {"s-tg": 14}, "do": "Étape 4 — même géométrie en béton (G ≈ 14 GPa).", "see": "τ n'a pas changé — il ne dépend que du couple et de la géométrie, pas du matériau. Seul l'angle a grandi. Mais un béton rompt en traction vers 3 MPa : à 45°, sur l'hélice, bien avant que τ n'inquiète un acier. C'est la fissure en spirale d'un poteau tordu."}], drawTor);
   } };
   BANCS['poutre'] = { n: 9, title: 'Banc 9 · Poutre : énergie, flèche et charge unité', intro: 'Poutre sur deux appuis, charge P en a. La déformée est tracée, le diagramme du moment aussi ; l\'énergie W = ∫M²/2EI est calculée, et la flèche sous la charge est obtenue de trois façons — Castigliano, charge unité, Clapeyron — qui doivent coïncider. Déplacer la charge : W est maximale au milieu.', html: `<div class="grid">
 <label>P = <span id="l-pP"></span> kN<input type="range" id="s-pP" min="1" max="100" step="1" value="20"></label>
@@ -483,6 +555,7 @@
 <label>L = <span id="l-pL"></span> m<input type="range" id="s-pL" min="2" max="6" step="0.5" value="6"></label>
 <label>EI = <span id="l-pEI"></span> MN·m²<input type="range" id="s-pEI" min="2" max="60" step="1" value="17"></label>
 </div>
+<div class="scen" data-scen="poutre"></div>
 <canvas id="cv-poutre" width="720" height="340"></canvas>
 <div class="out" id="o-poutre"></div>`, init() {
     const cv9 = document.getElementById('cv-poutre');
@@ -522,6 +595,7 @@
       ]);
     }
     bindAll(['s-pP', 's-pa', 's-pL', 's-pEI'], drawPoutre);
+    scenario('poutre', [{"set": {"s-pP": 20, "s-pa": 3, "s-pL": 6, "s-pEI": 17}, "do": "Étape 1 — charge au milieu.", "see": "Le diagramme du moment est un triangle, M max = PL/4 = 30 kN·m. L'énergie W = ∫M²/2EI est calculée ; la flèche sous la charge vaut PL³/48EI ≈ 5,3 mm — et les trois méthodes (Castigliano, charge unité, Clapeyron) donnent ce même nombre."}, {"set": {"s-pP": 40}, "do": "Étape 2 — charge doublée.", "see": "La flèche double ; l'énergie quadruple (W = ½ P δ, et P et δ ont doublé tous les deux). Le ½ de Clapeyron est le triangle sous la droite P–δ."}, {"set": {"s-pP": 20, "s-pa": 1}, "do": "Étape 3 — charge près de l'appui gauche.", "see": "Le triangle du moment se déporte et s'aplatit ; la flèche sous la charge est bien plus petite qu'au milieu. Castigliano donne toujours le déplacement <i>sous la charge et dans sa direction</i> — pour la flèche au milieu, il faudrait une charge fictive."}, {"set": {"s-pa": 3, "s-pEI": 34}, "do": "Étape 4 — raideur doublée.", "see": "Flèche et énergie divisées par deux : plus la poutre est raide, moins elle stocke pour la même charge. C'est le sens de Menabrea : une structure hyperstatique se répartit les efforts de façon à stocker le moins possible."}], drawPoutre);
   } };
 
   function mount(id, container) {
